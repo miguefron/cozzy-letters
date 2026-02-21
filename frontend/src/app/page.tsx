@@ -1,4 +1,4 @@
-import Link from "next/link";
+import HomeActions from "@/components/cozy/HomeActions";
 
 export default function Home() {
   return (
@@ -12,14 +12,7 @@ export default function Home() {
             Send warm letters to random souls around the world. Write from the
             heart, and let a cozy surprise land in someone&apos;s mailbox.
           </p>
-          <div className="mt-8 flex gap-4 justify-center">
-            <Link href="/write-letter" className="rounded-2xl bg-terracotta px-6 py-3 font-medium text-warm-white transition-colors hover:bg-terracotta/90">
-              Write a Letter
-            </Link>
-            <button className="rounded-2xl border-2 border-moss px-6 py-3 font-medium text-moss transition-colors hover:bg-moss/10">
-              Learn More
-            </button>
-          </div>
+          <HomeActions />
         </div>
         <p className="text-sm text-wood">
           Made with warmth and care

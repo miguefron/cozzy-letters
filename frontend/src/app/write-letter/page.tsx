@@ -1,22 +1,34 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useLetterStore } from "@/stores/useLetterStore";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 type Phase = "writing" | "folding" | "flying" | "success";
 
 export default function WriteLetterPage() {
-  const { title, content, isSending, isSent, error, setTitle, setContent, sendLetter, reset } =
+  const { title, content, isSending, isSent, error, setTitle, setContent, setToken, sendLetter, reset } =
     useLetterStore();
+  const { token } = useAuthStore();
+  const router = useRouter();
   const [phase, setPhase] = useState<Phase>("writing");
+
+  useEffect(() => {
+    if (!token) router.push("/login");
+  }, [token, router]);
 
   const handleSend = async () => {
     if (!title.trim() || !content.trim()) return;
+    const currentToken = useAuthStore.getState().token;
+    if (currentToken) setToken(currentToken);
     setPhase("folding");
     await sendLetter();
   };
+
+  if (!token) return null;
 
   const handleWriteAnother = useCallback(() => {
     reset();
