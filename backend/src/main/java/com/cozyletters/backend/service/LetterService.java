@@ -1,0 +1,55 @@
+package com.cozyletters.backend.service;
+
+import com.cozyletters.backend.dto.LetterResponse;
+import com.cozyletters.backend.model.Letter;
+import com.cozyletters.backend.model.LetterRecipient;
+import com.cozyletters.backend.model.User;
+import com.cozyletters.backend.repository.LetterRepository;
+import com.cozyletters.backend.repository.UserRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+@Service
+public class LetterService {
+
+    private final UserRepository userRepository;
+    private final LetterRepository letterRepository;
+
+    public LetterService(UserRepository userRepository, LetterRepository letterRepository) {
+        this.userRepository = userRepository;
+        this.letterRepository = letterRepository;
+    }
+
+    @Transactional
+    public LetterResponse sendLetter(String senderEmail, String title, String content) {
+        User sender = userRepository.findByEmail(senderEmail)
+                .orElseThrow(() -> new RuntimeException("Sender not found with email: " + senderEmail));
+
+        List<User> randomRecipients = userRepository.findRandomUsersExcluding(sender.getId(), 5);
+
+        Letter letter = new Letter();
+        letter.setSender(sender);
+        letter.setTitle(title);
+        letter.setContent(content);
+
+        for (User recipient : randomRecipients) {
+            LetterRecipient lr = new LetterRecipient();
+            lr.setLetter(letter);
+            lr.setRecipient(recipient);
+            letter.getRecipients().add(lr);
+        }
+
+        Letter saved = letterRepository.save(letter);
+
+        return new LetterResponse(
+                saved.getId(),
+                saved.getTitle(),
+                saved.getContent(),
+                sender.getDisplayName(),
+                saved.getRecipients().size(),
+                saved.getCreatedAt()
+        );
+    }
+}
