@@ -12,7 +12,7 @@
 ## Priority Media
 
 - [x] **Google OAuth2 real** — OAuth2LoginSuccessHandler, callback page, botón Google en login/register
-- [ ] **Perfil de usuario** — Página `/profile` para ver/editar displayName, cambiar contraseña
+- [x] **Perfil de usuario** — Página `/profile` para ver/editar displayName, cambiar contraseña
 - [ ] **Componentes reutilizables** — Extraer `CozyInput`, `CozyButton`, `CozyCard` en `src/components/cozy/`
 - [ ] **Loading states y skeletons** — Indicadores de carga en navegación y listados
 
