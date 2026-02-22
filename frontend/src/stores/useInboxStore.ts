@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { useAuthStore } from "./useAuthStore";
+import { apiFetch } from "@/lib/api";
 
 export interface InboxLetter {
   id: number;
@@ -22,8 +22,6 @@ interface InboxState {
   clearSelection(): void;
 }
 
-const API_URL = "http://localhost:8080/api/letters";
-
 export const useInboxStore = create<InboxState>((set, get) => ({
   letters: [],
   isLoading: false,
@@ -31,18 +29,10 @@ export const useInboxStore = create<InboxState>((set, get) => ({
   selectedLetter: null,
 
   fetchInbox: async () => {
-    const token = useAuthStore.getState().token;
-    if (!token) {
-      set({ error: "Not authenticated" });
-      return;
-    }
-
     set({ isLoading: true, error: null });
 
     try {
-      const res = await fetch(`${API_URL}/inbox`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch("/letters/inbox");
 
       if (!res.ok) throw new Error("Failed to load inbox");
 
@@ -57,13 +47,9 @@ export const useInboxStore = create<InboxState>((set, get) => ({
   },
 
   markAsRead: async (id: number) => {
-    const token = useAuthStore.getState().token;
-    if (!token) return;
-
     try {
-      await fetch(`${API_URL}/inbox/${id}/read`, {
+      await apiFetch(`/letters/inbox/${id}/read`, {
         method: "PATCH",
-        headers: { Authorization: `Bearer ${token}` },
       });
 
       set((state) => ({

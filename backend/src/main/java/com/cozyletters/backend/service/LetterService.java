@@ -36,6 +36,10 @@ public class LetterService {
 
         List<User> randomRecipients = userRepository.findRandomUsersExcluding(sender.getId(), 5);
 
+        if (randomRecipients.isEmpty()) {
+            throw new RuntimeException("No recipients available. Try again later when more users have joined.");
+        }
+
         Letter letter = new Letter();
         letter.setSender(sender);
         letter.setTitle(title);

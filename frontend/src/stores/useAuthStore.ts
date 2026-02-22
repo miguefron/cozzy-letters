@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { apiFetch } from "@/lib/api";
 
 export interface AuthUser {
   email: string;
@@ -108,9 +109,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     if (!token) return;
 
     try {
-      const res = await fetch(`${API_URL}/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await apiFetch("/auth/me");
 
       if (!res.ok) throw new Error("Session expired");
 
@@ -123,7 +122,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
       set({ user });
     } catch {
-      get().logout();
+      // apiFetch already calls logout() and redirects on 401
     }
   },
 

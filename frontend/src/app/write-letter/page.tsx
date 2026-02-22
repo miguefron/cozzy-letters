@@ -10,7 +10,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 type Phase = "writing" | "folding" | "flying" | "success";
 
 export default function WriteLetterPage() {
-  const { title, content, isSending, isSent, error, setTitle, setContent, setToken, sendLetter, reset } =
+  const { title, content, isSending, isSent, error, setTitle, setContent, sendLetter, reset } =
     useLetterStore();
   const { token } = useAuthStore();
   const router = useRouter();
@@ -27,8 +27,6 @@ export default function WriteLetterPage() {
 
   const handleSend = async () => {
     if (!title.trim() || !content.trim()) return;
-    const currentToken = useAuthStore.getState().token;
-    if (currentToken) setToken(currentToken);
     setPhase("folding");
     await sendLetter();
   };
