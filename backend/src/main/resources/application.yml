@@ -1,7 +1,4 @@
 spring:
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
   datasource:
     url: jdbc:postgresql://localhost:5432/cozyletters
     username: cozyletters
@@ -22,8 +19,8 @@ spring:
       client:
         registration:
           google:
-            client-id: ${GOOGLE_CLIENT_ID:placeholder-client-id}
-            client-secret: ${GOOGLE_CLIENT_SECRET:placeholder-client-secret}
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
             scope: openid, email, profile
         provider:
           google:
