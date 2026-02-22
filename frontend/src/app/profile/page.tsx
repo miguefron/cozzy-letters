@@ -6,6 +6,9 @@ import { motion } from "framer-motion";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { apiFetch } from "@/lib/api";
 import Skeleton from "@/components/cozy/Skeleton";
+import CozyCard from "@/components/cozy/CozyCard";
+import CozyInput from "@/components/cozy/CozyInput";
+import CozyButton from "@/components/cozy/CozyButton";
 
 interface ProfileData {
   email: string;
@@ -85,7 +88,7 @@ export default function ProfilePage() {
 
       const data: ProfileData = await res.json();
       setProfile(data);
-      updateUser({ email: data.email, displayName: data.displayName });
+      updateUser({ ...useAuthStore.getState().user!, email: data.email, displayName: data.displayName });
       setNameSuccess("Display name updated!");
     } catch (err) {
       setNameError(err instanceof Error ? err.message : "Failed to update display name");
@@ -166,17 +169,9 @@ export default function ProfilePage() {
     day: "numeric",
   });
 
-  const inputClass =
-    "w-full rounded-xl border border-wood/30 bg-cream/50 px-5 py-3 text-foreground placeholder:text-wood/50 focus:border-terracotta/50 focus:ring-2 focus:ring-terracotta/20 focus:outline-none transition-colors";
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-cream px-4">
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: "easeInOut" }}
-        className="w-full max-w-md rounded-2xl bg-warm-white p-8 shadow-md"
-      >
+      <CozyCard animated className="w-full max-w-md">
         {/* Header */}
         <h1 className="font-serif text-3xl font-bold text-terracotta">
           Your Profile
@@ -197,26 +192,18 @@ export default function ProfilePage() {
 
         {/* Edit Display Name */}
         <form onSubmit={handleNameSubmit} className="mt-8 flex flex-col gap-5">
-          <div>
-            <label
-              htmlFor="displayName"
-              className="mb-2 block text-sm font-medium text-foreground/60"
-            >
-              Display Name
-            </label>
-            <input
-              id="displayName"
-              type="text"
-              required
-              value={displayName}
-              onChange={(e) => {
-                setDisplayName(e.target.value);
-                setNameSuccess("");
-                setNameError("");
-              }}
-              className={inputClass}
-            />
-          </div>
+          <CozyInput
+            id="displayName"
+            type="text"
+            required
+            label="Display Name"
+            value={displayName}
+            onChange={(e) => {
+              setDisplayName(e.target.value);
+              setNameSuccess("");
+              setNameError("");
+            }}
+          />
 
           {nameSuccess && (
             <motion.p
@@ -238,13 +225,9 @@ export default function ProfilePage() {
             </motion.p>
           )}
 
-          <button
-            type="submit"
-            disabled={nameSaving}
-            className="w-full rounded-xl bg-terracotta px-6 py-3 font-medium text-warm-white transition-colors hover:bg-terracotta/90 disabled:cursor-not-allowed disabled:opacity-50"
-          >
+          <CozyButton type="submit" disabled={nameSaving} fullWidth>
             {nameSaving ? "Saving..." : "Save"}
-          </button>
+          </CozyButton>
         </form>
 
         {/* Change Password (only for users with a password) */}
@@ -257,71 +240,47 @@ export default function ProfilePage() {
             </div>
 
             <form onSubmit={handlePasswordSubmit} className="flex flex-col gap-5">
-              <div>
-                <label
-                  htmlFor="currentPassword"
-                  className="mb-2 block text-sm font-medium text-foreground/60"
-                >
-                  Current Password
-                </label>
-                <input
-                  id="currentPassword"
-                  type="password"
-                  required
-                  placeholder="Your current password"
-                  value={currentPassword}
-                  onChange={(e) => {
-                    setCurrentPassword(e.target.value);
-                    setPwSuccess("");
-                    setPwError("");
-                  }}
-                  className={inputClass}
-                />
-              </div>
+              <CozyInput
+                id="currentPassword"
+                type="password"
+                required
+                label="Current Password"
+                placeholder="Your current password"
+                value={currentPassword}
+                onChange={(e) => {
+                  setCurrentPassword(e.target.value);
+                  setPwSuccess("");
+                  setPwError("");
+                }}
+              />
 
-              <div>
-                <label
-                  htmlFor="newPassword"
-                  className="mb-2 block text-sm font-medium text-foreground/60"
-                >
-                  New Password
-                </label>
-                <input
-                  id="newPassword"
-                  type="password"
-                  required
-                  placeholder="Choose a new password"
-                  value={newPassword}
-                  onChange={(e) => {
-                    setNewPassword(e.target.value);
-                    setPwSuccess("");
-                    setPwError("");
-                  }}
-                  className={inputClass}
-                />
-              </div>
+              <CozyInput
+                id="newPassword"
+                type="password"
+                required
+                label="New Password"
+                placeholder="Choose a new password"
+                value={newPassword}
+                onChange={(e) => {
+                  setNewPassword(e.target.value);
+                  setPwSuccess("");
+                  setPwError("");
+                }}
+              />
 
-              <div>
-                <label
-                  htmlFor="confirmPassword"
-                  className="mb-2 block text-sm font-medium text-foreground/60"
-                >
-                  Confirm New Password
-                </label>
-                <input
-                  id="confirmPassword"
-                  type="password"
-                  required
-                  placeholder="Confirm new password"
-                  value={confirmPassword}
-                  onChange={(e) => {
-                    setConfirmPassword(e.target.value);
-                    setPwSuccess("");
-                    setPwError("");
-                  }}
-                  className={inputClass}
-                />
-              </div>
+              <CozyInput
+                id="confirmPassword"
+                type="password"
+                required
+                label="Confirm New Password"
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  setPwSuccess("");
+                  setPwError("");
+                }}
+              />
 
               {pwSuccess && (
                 <motion.p
@@ -343,17 +302,13 @@ export default function ProfilePage() {
                 </motion.p>
               )}
 
-              <button
-                type="submit"
-                disabled={pwSaving}
-                className="w-full rounded-xl bg-terracotta px-6 py-3 font-medium text-warm-white transition-colors hover:bg-terracotta/90 disabled:cursor-not-allowed disabled:opacity-50"
-              >
+              <CozyButton type="submit" disabled={pwSaving} fullWidth>
                 {pwSaving ? "Changing..." : "Change Password"}
-              </button>
+              </CozyButton>
             </form>
           </>
         )}
-      </motion.div>
+      </CozyCard>
     </div>
   );
 }

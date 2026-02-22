@@ -9,6 +9,7 @@ import {
   useAdminStore,
   type AdminLetter,
 } from "@/stores/useAdminStore";
+import CozyButton from "@/components/cozy/CozyButton";
 
 function formatDate(dateStr: string) {
   const date = new Date(dateStr);
@@ -220,14 +221,15 @@ export default function AdminPage() {
                           </div>
                         </div>
                         {u.role !== "ADMIN" && (
-                          <button
+                          <CozyButton
+                            variant="danger"
                             onClick={() =>
                               handleDeleteUser(u.id, u.displayName)
                             }
-                            className="flex-shrink-0 rounded-xl px-3 py-1.5 text-xs font-medium text-red-500 transition-colors hover:bg-red-50"
+                            className="flex-shrink-0 px-3 py-1.5 text-xs"
                           >
                             Delete
-                          </button>
+                          </CozyButton>
                         )}
                       </div>
                     </motion.div>
@@ -302,15 +304,16 @@ function LetterCard({
             {letter.content}
           </p>
           <div className="mt-4 flex justify-end">
-            <button
+            <CozyButton
+              variant="danger"
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete();
               }}
-              className="rounded-xl px-3 py-1.5 text-xs font-medium text-red-500 transition-colors hover:bg-red-50"
+              className="px-3 py-1.5 text-xs"
             >
               Delete Letter
-            </button>
+            </CozyButton>
           </div>
         </motion.div>
       )}

@@ -7,6 +7,8 @@ import Link from "next/link";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useInboxStore, type InboxLetter } from "@/stores/useInboxStore";
 import Skeleton from "@/components/cozy/Skeleton";
+import CozyCard from "@/components/cozy/CozyCard";
+import CozyButton from "@/components/cozy/CozyButton";
 
 function formatDate(dateStr: string) {
   const date = new Date(dateStr);
@@ -108,11 +110,11 @@ export default function InboxPage() {
           )}
 
           {!isLoading && !error && letters.length === 0 && (
-            <motion.div
+            <CozyCard variant="hero" animated
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="flex flex-col items-center gap-4 rounded-2xl bg-warm-white p-12 text-center shadow-lg"
+              className="flex flex-col items-center gap-4 text-center shadow-lg"
             >
               <span className="text-5xl">📭</span>
               <h2 className="font-serif text-2xl font-semibold text-terracotta">
@@ -122,13 +124,10 @@ export default function InboxPage() {
                 No letters yet — but they&apos;ll come! In the meantime, why not
                 brighten someone else&apos;s day?
               </p>
-              <Link
-                href="/write-letter"
-                className="mt-2 rounded-xl bg-terracotta px-6 py-3 font-medium text-warm-white transition-colors hover:bg-terracotta/85"
-              >
+              <CozyButton as="link" href="/write-letter" className="mt-2">
                 Write a Letter
-              </Link>
-            </motion.div>
+              </CozyButton>
+            </CozyCard>
           )}
 
           {!isLoading && !error && letters.length > 0 && (

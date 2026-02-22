@@ -1,10 +1,11 @@
 import HomeActions from "@/components/cozy/HomeActions";
+import CozyCard from "@/components/cozy/CozyCard";
 
 export default function Home() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-cream">
       <main className="flex flex-col items-center gap-8 px-8 text-center">
-        <div className="rounded-2xl bg-warm-white p-12 shadow-md">
+        <CozyCard variant="hero">
           <h1 className="text-5xl font-bold tracking-tight text-terracotta">
             CozyLetters
           </h1>
@@ -13,7 +14,7 @@ export default function Home() {
             heart, and let a cozy surprise land in someone&apos;s mailbox.
           </p>
           <HomeActions />
-        </div>
+        </CozyCard>
         <p className="text-sm text-wood">
           Made with warmth and care
         </p>
