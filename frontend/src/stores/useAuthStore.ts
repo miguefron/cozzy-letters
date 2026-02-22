@@ -15,6 +15,7 @@ interface AuthState {
   register(email: string, password: string, displayName: string): Promise<boolean>;
   logout(): void;
   checkAuth(): Promise<void>;
+  updateUser(user: AuthUser): void;
   clearError(): void;
 }
 
@@ -124,6 +125,13 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     } catch {
       // apiFetch already calls logout() and redirects on 401
     }
+  },
+
+  updateUser: (user: AuthUser) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("cl_user", JSON.stringify(user));
+    }
+    set({ user });
   },
 
   clearError: () => set({ error: null }),

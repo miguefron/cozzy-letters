@@ -51,6 +51,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/dev-token").permitAll()
                 .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
+                .requestMatchers(HttpMethod.PATCH, "/api/auth/me").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/auth/me/password").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/letters/inbox").authenticated()
                 .requestMatchers(HttpMethod.PATCH, "/api/letters/**").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/**").permitAll()

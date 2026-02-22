@@ -26,6 +26,12 @@ export default function Navbar() {
                 Hello, {user.displayName}
               </span>
               <Link
+                href="/profile"
+                className="text-sm font-medium text-wood hover:underline"
+              >
+                Profile
+              </Link>
+              <Link
                 href="/inbox"
                 className="text-sm font-medium text-moss hover:underline"
               >

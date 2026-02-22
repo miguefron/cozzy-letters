@@ -49,4 +49,27 @@ public class AuthService {
         String token = jwtService.generateToken(email);
         return new AuthResult(token, email, user.getDisplayName());
     }
+
+    public User updateDisplayName(String email, String displayName) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setDisplayName(displayName);
+        return userRepository.save(user);
+    }
+
+    public void changePassword(String email, String currentPassword, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getPasswordHash() == null) {
+            throw new RuntimeException("Password change not available for OAuth accounts");
+        }
+
+        if (!passwordEncoder.matches(currentPassword, user.getPasswordHash())) {
+            throw new InvalidCredentialsException("Current password is incorrect");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
 }

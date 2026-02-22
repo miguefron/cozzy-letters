@@ -1,9 +1,6 @@
 package com.cozyletters.backend.controller;
 
-import com.cozyletters.backend.dto.AuthResponse;
-import com.cozyletters.backend.dto.LoginRequest;
-import com.cozyletters.backend.dto.RegisterRequest;
-import com.cozyletters.backend.dto.UserProfileResponse;
+import com.cozyletters.backend.dto.*;
 import com.cozyletters.backend.model.User;
 import com.cozyletters.backend.repository.UserRepository;
 import com.cozyletters.backend.security.JwtService;
@@ -57,6 +54,32 @@ public class AuthController {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return ResponseEntity.ok(new UserProfileResponse(user.getEmail(), user.getDisplayName()));
+        return ResponseEntity.ok(new UserProfileResponse(
+                user.getEmail(),
+                user.getDisplayName(),
+                user.getPasswordHash() != null,
+                user.getCreatedAt().toString()));
+    }
+
+    @PatchMapping("/me")
+    public ResponseEntity<UserProfileResponse> updateProfile(
+            Authentication authentication,
+            @Valid @RequestBody UpdateProfileRequest request) {
+        String email = authentication.getName();
+        User user = authService.updateDisplayName(email, request.getDisplayName());
+        return ResponseEntity.ok(new UserProfileResponse(
+                user.getEmail(),
+                user.getDisplayName(),
+                user.getPasswordHash() != null,
+                user.getCreatedAt().toString()));
+    }
+
+    @PutMapping("/me/password")
+    public ResponseEntity<Void> changePassword(
+            Authentication authentication,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        String email = authentication.getName();
+        authService.changePassword(email, request.getCurrentPassword(), request.getNewPassword());
+        return ResponseEntity.noContent().build();
     }
 }
