@@ -51,7 +51,7 @@ export default function InboxPage() {
   if (!token) return null;
 
   return (
-    <div className="min-h-screen bg-cream px-4 py-12 pt-24">
+    <div className="min-h-screen bg-cream px-4 py-8 sm:py-12 sm:pt-24">
       <div className="mx-auto w-full max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

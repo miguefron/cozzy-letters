@@ -4,10 +4,10 @@ import { type HTMLAttributes, type ReactNode, forwardRef } from "react";
 import { motion, type HTMLMotionProps } from "framer-motion";
 
 const variants = {
-  form: "rounded-2xl bg-warm-white p-8 shadow-md",
-  large: "rounded-2xl bg-warm-white p-8 shadow-lg sm:p-12",
+  form: "rounded-2xl bg-warm-white p-6 shadow-md sm:p-8",
+  large: "rounded-2xl bg-warm-white p-6 shadow-lg sm:p-8 md:p-12",
   item: "rounded-xl bg-warm-white p-4 shadow-sm hover:shadow-md",
-  hero: "rounded-2xl bg-warm-white p-12 shadow-md",
+  hero: "rounded-2xl bg-warm-white p-8 shadow-md sm:p-12",
 } as const;
 
 type Variant = keyof typeof variants;

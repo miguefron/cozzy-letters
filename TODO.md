@@ -13,13 +13,13 @@
 
 - [x] **Google OAuth2 real** — OAuth2LoginSuccessHandler, callback page, botón Google en login/register
 - [x] **Perfil de usuario** — Página `/profile` para ver/editar displayName, cambiar contraseña
-- [ ] **Componentes reutilizables** — Extraer `CozyInput`, `CozyButton`, `CozyCard` en `src/components/cozy/`
+- [x] **Componentes reutilizables** — Extraer `CozyInput`, `CozyButton`, `CozyCard` en `src/components/cozy/`
 - [x] **Loading states y skeletons** — Componente Skeleton reutilizable, skeletons en inbox, profile y home
 - [x] **Panel de administración** — Sistema de roles (USER/ADMIN), página `/admin` con gestión de cartas y usuarios
 
 ## Priority Baja
 
 - [ ] **Rate limiting** — Máx 10 cartas/día por usuario
-- [ ] **Responsive polish** — Revisar navbar y formularios en móvil
+- [x] **Responsive polish** — Revisar navbar y formularios en móvil
 - [ ] **Tests** — Tests unitarios y de integración (frontend + backend)
 - [ ] **Producción** — Variables de entorno, HTTPS, Docker multi-stage, deploy config

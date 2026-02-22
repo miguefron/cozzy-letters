@@ -112,7 +112,7 @@ export default function WriteLetterPage() {
               transition={{ duration: 0.8, ease: "easeInOut" }}
               onAnimationComplete={() => setPhase("flying")}
               style={{ transformOrigin: "top center" }}
-              className="rounded-2xl bg-warm-white p-8 shadow-lg sm:p-12"
+              className="rounded-2xl bg-warm-white p-6 shadow-lg sm:p-8 md:p-12"
             >
               <h2 className="mb-4 font-serif text-3xl font-semibold text-terracotta">
                 {title || "Your Letter"}
@@ -187,7 +187,7 @@ export default function WriteLetterPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="flex flex-col items-center gap-6 rounded-2xl bg-warm-white p-12 text-center shadow-lg"
+              className="flex flex-col items-center gap-6 rounded-2xl bg-warm-white p-8 text-center shadow-lg sm:p-12"
             >
               <span className="text-5xl">💌</span>
               <h2 className="font-serif text-3xl font-semibold text-terracotta">
@@ -197,11 +197,11 @@ export default function WriteLetterPage() {
                 Your letter is on its way to a random soul. Someone out there is about
                 to receive a little warmth.
               </p>
-              <div className="mt-2 flex gap-4">
+              <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:gap-4">
                 <CozyButton onClick={handleWriteAnother}>
                   Write Another
                 </CozyButton>
-                <CozyButton as="link" href="/" variant="secondary">
+                <CozyButton as="link" href="/" variant="secondary" className="text-center">
                   Go Home
                 </CozyButton>
               </div>

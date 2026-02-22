@@ -23,17 +23,17 @@ export default function HomeActions() {
   }
 
   return (
-    <div className="mt-8 flex gap-4 justify-center">
+    <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4 sm:justify-center">
       {isLoggedIn ? (
-        <CozyButton as="link" href="/write-letter" className="rounded-2xl">
+        <CozyButton as="link" href="/write-letter" className="rounded-2xl text-center">
           Write a Letter
         </CozyButton>
       ) : (
         <>
-          <CozyButton as="link" href="/login" className="rounded-2xl">
+          <CozyButton as="link" href="/login" className="rounded-2xl text-center">
             Write a Letter
           </CozyButton>
-          <CozyButton as="link" href="/register" variant="secondary" className="rounded-2xl">
+          <CozyButton as="link" href="/register" variant="secondary" className="rounded-2xl text-center">
             Sign Up
           </CozyButton>
         </>

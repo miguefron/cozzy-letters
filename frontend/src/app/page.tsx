@@ -4,9 +4,9 @@ import CozyCard from "@/components/cozy/CozyCard";
 export default function Home() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-cream">
-      <main className="flex flex-col items-center gap-8 px-8 text-center">
+      <main className="flex flex-col items-center gap-8 px-4 text-center sm:px-8">
         <CozyCard variant="hero">
-          <h1 className="text-5xl font-bold tracking-tight text-terracotta">
+          <h1 className="text-3xl font-bold tracking-tight text-terracotta sm:text-5xl">
             CozyLetters
           </h1>
           <p className="mt-4 max-w-md text-lg text-foreground/70">

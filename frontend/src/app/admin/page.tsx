@@ -82,7 +82,7 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-cream px-4 py-12 pt-24">
+    <div className="min-h-screen bg-cream px-4 py-8 sm:py-12 sm:pt-24">
       <div className="mx-auto w-full max-w-4xl">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -210,10 +210,10 @@ export default function AdminPage() {
                               {u.role}
                             </span>
                           </div>
-                          <p className="mt-0.5 text-sm text-foreground/60">
+                          <p className="mt-0.5 truncate text-sm text-foreground/60">
                             {u.email}
                           </p>
-                          <div className="mt-1.5 flex items-center gap-3 text-xs text-foreground/40">
+                          <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-foreground/40">
                             <span>
                               {u.hasPassword ? "Password" : "OAuth"}
                             </span>
@@ -226,7 +226,7 @@ export default function AdminPage() {
                             onClick={() =>
                               handleDeleteUser(u.id, u.displayName)
                             }
-                            className="flex-shrink-0 px-3 py-1.5 text-xs"
+                            className="flex-shrink-0 px-3 py-2 text-xs sm:py-1.5"
                           >
                             Delete
                           </CozyButton>
