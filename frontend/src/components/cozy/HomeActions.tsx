@@ -1,11 +1,16 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function HomeActions() {
   const { token } = useAuthStore();
-  const isLoggedIn = !!token;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  const isLoggedIn = mounted && !!token;
 
   return (
     <div className="mt-8 flex gap-4 justify-center">

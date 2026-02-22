@@ -1,11 +1,16 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function Navbar() {
   const { user, token, logout } = useAuthStore();
-  const isLoggedIn = !!token && !!user;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  const isLoggedIn = mounted && !!token && !!user;
 
   return (
     <nav className="fixed top-0 z-50 w-full border-b border-wood/10 bg-warm-white/80 backdrop-blur-sm">
