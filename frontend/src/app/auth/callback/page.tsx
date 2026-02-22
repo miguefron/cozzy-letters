@@ -12,16 +12,17 @@ function CallbackHandler() {
     const token = searchParams.get("token");
     const email = searchParams.get("email");
     const displayName = searchParams.get("displayName");
+    const role = searchParams.get("role") ?? "USER";
 
     if (token && email && displayName) {
       if (typeof window !== "undefined") {
         localStorage.setItem("cl_token", JSON.stringify(token));
-        localStorage.setItem("cl_user", JSON.stringify({ email, displayName }));
+        localStorage.setItem("cl_user", JSON.stringify({ email, displayName, role }));
       }
 
       useAuthStore.setState({
         token,
-        user: { email, displayName },
+        user: { email, displayName, role },
         isLoading: false,
         error: null,
       });

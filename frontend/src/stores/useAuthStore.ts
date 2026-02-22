@@ -4,6 +4,7 @@ import { apiFetch } from "@/lib/api";
 export interface AuthUser {
   email: string;
   displayName: string;
+  role: string;
 }
 
 interface AuthState {
@@ -52,7 +53,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
 
       const data = await res.json();
-      const user: AuthUser = { email: data.email, displayName: data.displayName };
+      const user: AuthUser = { email: data.email, displayName: data.displayName, role: data.role ?? "USER" };
 
       if (typeof window !== "undefined") {
         localStorage.setItem("cl_token", JSON.stringify(data.token));
@@ -82,7 +83,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
 
       const data = await res.json();
-      const user: AuthUser = { email: data.email, displayName: data.displayName };
+      const user: AuthUser = { email: data.email, displayName: data.displayName, role: data.role ?? "USER" };
 
       if (typeof window !== "undefined") {
         localStorage.setItem("cl_token", JSON.stringify(data.token));
@@ -115,7 +116,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (!res.ok) throw new Error("Session expired");
 
       const data = await res.json();
-      const user: AuthUser = { email: data.email, displayName: data.displayName };
+      const user: AuthUser = { email: data.email, displayName: data.displayName, role: data.role ?? "USER" };
 
       if (typeof window !== "undefined") {
         localStorage.setItem("cl_user", JSON.stringify(user));

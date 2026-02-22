@@ -40,13 +40,13 @@ public class AuthController {
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
         AuthService.AuthResult result = authService.register(
                 request.getEmail(), request.getPassword(), request.getDisplayName());
-        return ResponseEntity.ok(new AuthResponse(result.token(), result.email(), result.displayName()));
+        return ResponseEntity.ok(new AuthResponse(result.token(), result.email(), result.displayName(), result.role()));
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         AuthService.AuthResult result = authService.login(request.getEmail(), request.getPassword());
-        return ResponseEntity.ok(new AuthResponse(result.token(), result.email(), result.displayName()));
+        return ResponseEntity.ok(new AuthResponse(result.token(), result.email(), result.displayName(), result.role()));
     }
 
     @GetMapping("/me")
@@ -58,7 +58,8 @@ public class AuthController {
                 user.getEmail(),
                 user.getDisplayName(),
                 user.getPasswordHash() != null,
-                user.getCreatedAt().toString()));
+                user.getCreatedAt().toString(),
+                user.getRole().name()));
     }
 
     @PatchMapping("/me")
@@ -71,7 +72,8 @@ public class AuthController {
                 user.getEmail(),
                 user.getDisplayName(),
                 user.getPasswordHash() != null,
-                user.getCreatedAt().toString()));
+                user.getCreatedAt().toString(),
+                user.getRole().name()));
     }
 
     @PutMapping("/me/password")

@@ -2,6 +2,7 @@ package com.cozyletters.backend.service;
 
 import com.cozyletters.backend.exception.EmailAlreadyExistsException;
 import com.cozyletters.backend.exception.InvalidCredentialsException;
+import com.cozyletters.backend.model.Role;
 import com.cozyletters.backend.model.User;
 import com.cozyletters.backend.repository.UserRepository;
 import com.cozyletters.backend.security.JwtService;
@@ -21,7 +22,7 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public record AuthResult(String token, String email, String displayName) {}
+    public record AuthResult(String token, String email, String displayName, String role) {}
 
     public AuthResult register(String email, String password, String displayName) {
         if (userRepository.findByEmail(email).isPresent()) {
@@ -35,7 +36,7 @@ public class AuthService {
         userRepository.save(user);
 
         String token = jwtService.generateToken(email);
-        return new AuthResult(token, email, displayName);
+        return new AuthResult(token, email, displayName, "USER");
     }
 
     public AuthResult login(String email, String password) {
@@ -47,7 +48,7 @@ public class AuthService {
         }
 
         String token = jwtService.generateToken(email);
-        return new AuthResult(token, email, user.getDisplayName());
+        return new AuthResult(token, email, user.getDisplayName(), user.getRole().name());
     }
 
     public User updateDisplayName(String email, String displayName) {

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useAuthStore } from "@/stores/useAuthStore";
+import Skeleton from "@/components/cozy/Skeleton";
 
 export default function HomeActions() {
   const { token } = useAuthStore();
@@ -11,6 +12,15 @@ export default function HomeActions() {
   useEffect(() => setMounted(true), []);
 
   const isLoggedIn = mounted && !!token;
+
+  if (!mounted) {
+    return (
+      <div className="mt-8 flex gap-4 justify-center">
+        <Skeleton className="h-12 w-36 rounded-2xl" />
+        <Skeleton className="h-12 w-36 rounded-2xl" />
+      </div>
+    );
+  }
 
   return (
     <div className="mt-8 flex gap-4 justify-center">

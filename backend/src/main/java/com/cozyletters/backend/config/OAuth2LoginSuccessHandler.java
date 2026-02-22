@@ -1,5 +1,6 @@
 package com.cozyletters.backend.config;
 
+import com.cozyletters.backend.model.Role;
 import com.cozyletters.backend.model.User;
 import com.cozyletters.backend.repository.UserRepository;
 import com.cozyletters.backend.security.JwtService;
@@ -44,6 +45,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 User newUser = new User();
                 newUser.setEmail(email);
                 newUser.setDisplayName(name);
+                newUser.setRole(Role.USER);
                 // No password for OAuth2 users
                 return userRepository.save(newUser);
             });
@@ -53,10 +55,11 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         // Redirect to frontend callback with token info
         String redirectUrl = String.format(
-            frontendUrl + "/auth/callback?token=%s&email=%s&displayName=%s",
+            frontendUrl + "/auth/callback?token=%s&email=%s&displayName=%s&role=%s",
             URLEncoder.encode(token, StandardCharsets.UTF_8),
             URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8),
-            URLEncoder.encode(user.getDisplayName(), StandardCharsets.UTF_8)
+            URLEncoder.encode(user.getDisplayName(), StandardCharsets.UTF_8),
+            URLEncoder.encode(user.getRole().name(), StandardCharsets.UTF_8)
         );
 
         response.sendRedirect(redirectUrl);

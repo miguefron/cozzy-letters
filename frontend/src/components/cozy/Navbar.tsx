@@ -43,6 +43,14 @@ export default function Navbar() {
               >
                 Write a Letter
               </Link>
+              {user.role === "ADMIN" && (
+                <Link
+                  href="/admin"
+                  className="text-sm font-medium text-terracotta hover:underline"
+                >
+                  Admin
+                </Link>
+              )}
               <button
                 onClick={logout}
                 className="text-sm text-wood/60 transition-colors hover:text-terracotta"
