@@ -2,12 +2,12 @@
 
 ## Priority Alta
 
-- [ ] **Inbox / Mailbox** — Página para leer cartas recibidas
+- [x] **Inbox / Mailbox** — Página para leer cartas recibidas
   - `GET /api/letters/inbox` — endpoint para obtener cartas recibidas
   - Página `/inbox` con lista de cartas y vista de lectura
   - `PATCH /api/letters/:id/read` — marcar cartas como leídas
-- [ ] **Seed de usuarios** — Manejar el caso de pocos usuarios registrados al enviar cartas
-- [ ] **Validación de sesión robusta** — Interceptor/middleware que haga logout automático en 401
+- [x] **Seed de usuarios** — 10 usuarios seed via data.sql, manejo graceful con pocos usuarios
+- [x] **Validación de sesión robusta** — apiFetch con auto-logout en 401
 
 ## Priority Media
 
