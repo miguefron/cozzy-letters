@@ -20,6 +20,11 @@ export default function WriteLetterPage() {
     if (!token) router.push("/login");
   }, [token, router]);
 
+  const handleWriteAnother = useCallback(() => {
+    reset();
+    setPhase("writing");
+  }, [reset]);
+
   const handleSend = async () => {
     if (!title.trim() || !content.trim()) return;
     const currentToken = useAuthStore.getState().token;
@@ -29,11 +34,6 @@ export default function WriteLetterPage() {
   };
 
   if (!token) return null;
-
-  const handleWriteAnother = useCallback(() => {
-    reset();
-    setPhase("writing");
-  }, [reset]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-cream px-4 py-12">
