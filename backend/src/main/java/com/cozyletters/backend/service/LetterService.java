@@ -1,13 +1,17 @@
 package com.cozyletters.backend.service;
 
+import com.cozyletters.backend.dto.InboxLetterResponse;
 import com.cozyletters.backend.dto.LetterResponse;
 import com.cozyletters.backend.model.Letter;
 import com.cozyletters.backend.model.LetterRecipient;
 import com.cozyletters.backend.model.User;
+import com.cozyletters.backend.repository.LetterRecipientRepository;
 import com.cozyletters.backend.repository.LetterRepository;
 import com.cozyletters.backend.repository.UserRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -16,10 +20,13 @@ public class LetterService {
 
     private final UserRepository userRepository;
     private final LetterRepository letterRepository;
+    private final LetterRecipientRepository letterRecipientRepository;
 
-    public LetterService(UserRepository userRepository, LetterRepository letterRepository) {
+    public LetterService(UserRepository userRepository, LetterRepository letterRepository,
+                         LetterRecipientRepository letterRecipientRepository) {
         this.userRepository = userRepository;
         this.letterRepository = letterRepository;
+        this.letterRecipientRepository = letterRecipientRepository;
     }
 
     @Transactional
@@ -51,5 +58,20 @@ public class LetterService {
                 saved.getRecipients().size(),
                 saved.getCreatedAt()
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<InboxLetterResponse> getInbox(String recipientEmail) {
+        List<LetterRecipient> recipients =
+                letterRecipientRepository.findByRecipientEmailOrderByDeliveredAtDesc(recipientEmail);
+        return recipients.stream().map(InboxLetterResponse::new).toList();
+    }
+
+    @Transactional
+    public void markAsRead(String recipientEmail, Long recipientId) {
+        LetterRecipient lr = letterRecipientRepository.findByIdAndRecipientEmail(recipientId, recipientEmail)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        lr.setRead(true);
+        letterRecipientRepository.save(lr);
     }
 }

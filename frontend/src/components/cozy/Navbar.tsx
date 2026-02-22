@@ -21,6 +21,12 @@ export default function Navbar() {
                 Hello, {user.displayName}
               </span>
               <Link
+                href="/inbox"
+                className="text-sm font-medium text-moss hover:underline"
+              >
+                Inbox
+              </Link>
+              <Link
                 href="/write-letter"
                 className="text-sm font-medium text-terracotta hover:underline"
               >
