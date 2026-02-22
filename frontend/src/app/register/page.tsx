@@ -104,7 +104,7 @@ export default function RegisterPage() {
         </div>
 
         <a
-          href="http://localhost:8080/oauth2/authorization/google"
+          href={`${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080"}/oauth2/authorization/google`}
           className="flex w-full items-center justify-center gap-3 rounded-xl border-2 border-wood/30 px-6 py-3 font-medium text-foreground/70 transition-colors hover:border-terracotta/50 hover:bg-cream/50"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">

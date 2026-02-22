@@ -1,6 +1,6 @@
 import { useAuthStore } from "@/stores/useAuthStore";
 
-const API_BASE = "http://localhost:8080/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 
 export async function apiFetch(
   path: string,

@@ -10,12 +10,17 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import org.springframework.beans.factory.annotation.Value;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 @Component
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
+
+    @Value("${app.frontend-url}")
+    private String frontendUrl;
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
@@ -48,7 +53,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         // Redirect to frontend callback with token info
         String redirectUrl = String.format(
-            "http://localhost:3000/auth/callback?token=%s&email=%s&displayName=%s",
+            frontendUrl + "/auth/callback?token=%s&email=%s&displayName=%s",
             URLEncoder.encode(token, StandardCharsets.UTF_8),
             URLEncoder.encode(user.getEmail(), StandardCharsets.UTF_8),
             URLEncoder.encode(user.getDisplayName(), StandardCharsets.UTF_8)
