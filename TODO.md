@@ -14,7 +14,8 @@
 - [x] **Google OAuth2 real** — OAuth2LoginSuccessHandler, callback page, botón Google en login/register
 - [x] **Perfil de usuario** — Página `/profile` para ver/editar displayName, cambiar contraseña
 - [ ] **Componentes reutilizables** — Extraer `CozyInput`, `CozyButton`, `CozyCard` en `src/components/cozy/`
-- [ ] **Loading states y skeletons** — Indicadores de carga en navegación y listados
+- [x] **Loading states y skeletons** — Componente Skeleton reutilizable, skeletons en inbox, profile y home
+- [x] **Panel de administración** — Sistema de roles (USER/ADMIN), página `/admin` con gestión de cartas y usuarios
 
 ## Priority Baja
 
