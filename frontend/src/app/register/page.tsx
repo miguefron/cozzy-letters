@@ -19,7 +19,7 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const ok = await register(email, password, displayName);
-    if (ok) router.push("/");
+    if (ok) router.push("/inbox");
   };
 
   return (

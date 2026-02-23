@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import AuthInitializer from "@/components/cozy/AuthInitializer";
-import Navbar from "@/components/cozy/Navbar";
+import LayoutShell from "@/components/cozy/LayoutShell";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,8 +36,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} antialiased`}
       >
         <AuthInitializer />
-        <Navbar />
-        <main className="pt-16">{children}</main>
+        <LayoutShell>{children}</LayoutShell>
       </body>
     </html>
   );

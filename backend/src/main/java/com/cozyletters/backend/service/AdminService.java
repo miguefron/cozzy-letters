@@ -26,15 +26,23 @@ public class AdminService {
 
     public List<AdminLetterResponse> getAllLetters() {
         List<Letter> letters = letterRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
-        return letters.stream().map(letter -> new AdminLetterResponse(
-                letter.getId(),
-                letter.getTitle(),
-                letter.getContent(),
-                letter.getSender().getDisplayName(),
-                letter.getSender().getEmail(),
-                letter.getRecipients().size(),
-                letter.getCreatedAt().toString()
-        )).toList();
+        return letters.stream().map(letter -> {
+            List<AdminLetterResponse.RecipientInfo> recipients = letter.getRecipients().stream()
+                    .map(lr -> new AdminLetterResponse.RecipientInfo(
+                            lr.getRecipient().getDisplayName(),
+                            lr.getRecipient().getEmail(),
+                            lr.isRead()
+                    )).toList();
+            return new AdminLetterResponse(
+                    letter.getId(),
+                    letter.getTitle(),
+                    letter.getContent(),
+                    letter.getSender().getDisplayName(),
+                    letter.getSender().getEmail(),
+                    recipients,
+                    letter.getCreatedAt().toString()
+            );
+        }).toList();
     }
 
     @Transactional

@@ -1,6 +1,7 @@
 package com.cozyletters.backend.dto;
 
 import com.cozyletters.backend.model.LetterRecipient;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDateTime;
 
@@ -11,6 +12,7 @@ public class InboxLetterResponse {
     private String title;
     private String content;
     private String senderName;
+    @JsonProperty("isRead")
     private boolean isRead;
     private LocalDateTime deliveredAt;
 

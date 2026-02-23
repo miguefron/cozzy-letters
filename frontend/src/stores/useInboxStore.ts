@@ -47,22 +47,25 @@ export const useInboxStore = create<InboxState>((set, get) => ({
   },
 
   markAsRead: async (id: number) => {
+    const previousLetters = get().letters;
+    const previousSelected = get().selectedLetter;
+
+    set((state) => ({
+      letters: state.letters.map((l) =>
+        l.id === id ? { ...l, isRead: true } : l
+      ),
+      selectedLetter:
+        state.selectedLetter?.id === id
+          ? { ...state.selectedLetter, isRead: true }
+          : state.selectedLetter,
+    }));
+
     try {
       await apiFetch(`/letters/inbox/${id}/read`, {
         method: "PATCH",
       });
-
-      set((state) => ({
-        letters: state.letters.map((l) =>
-          l.id === id ? { ...l, isRead: true } : l
-        ),
-        selectedLetter:
-          state.selectedLetter?.id === id
-            ? { ...state.selectedLetter, isRead: true }
-            : state.selectedLetter,
-      }));
     } catch {
-      // Silently fail — the letter will stay unread in the UI
+      set({ letters: previousLetters, selectedLetter: previousSelected });
     }
   },
 

@@ -27,7 +27,7 @@ function CallbackHandler() {
         error: null,
       });
 
-      router.push("/");
+      router.push("/inbox");
     } else {
       router.push("/login");
     }

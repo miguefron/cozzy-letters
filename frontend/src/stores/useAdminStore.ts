@@ -1,6 +1,12 @@
 import { create } from "zustand";
 import { apiFetch } from "@/lib/api";
 
+export interface AdminLetterRecipient {
+  displayName: string;
+  email: string;
+  isRead: boolean;
+}
+
 export interface AdminLetter {
   id: number;
   title: string;
@@ -8,6 +14,7 @@ export interface AdminLetter {
   senderName: string;
   senderEmail: string;
   recipientCount: number;
+  recipients: AdminLetterRecipient[];
   createdAt: string;
 }
 

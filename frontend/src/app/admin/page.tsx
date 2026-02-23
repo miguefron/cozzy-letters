@@ -42,6 +42,9 @@ export default function AdminPage() {
   const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("letters");
   const [expandedLetterId, setExpandedLetterId] = useState<number | null>(null);
+  const [letterSearch, setLetterSearch] = useState("");
+  const [userSearch, setUserSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState<"ALL" | "USER" | "ADMIN">("ALL");
 
   useEffect(() => setMounted(true), []);
 
@@ -81,6 +84,24 @@ export default function AdminPage() {
     setExpandedLetterId(expandedLetterId === id ? null : id);
   };
 
+  const filteredLetters = letters.filter((l) => {
+    if (!letterSearch) return true;
+    const q = letterSearch.toLowerCase();
+    return (
+      l.title.toLowerCase().includes(q) ||
+      l.senderName.toLowerCase().includes(q) ||
+      l.senderEmail.toLowerCase().includes(q)
+    );
+  });
+
+  const filteredUsers = users.filter((u) => {
+    const matchesSearch = !userSearch ||
+      u.displayName.toLowerCase().includes(userSearch.toLowerCase()) ||
+      u.email.toLowerCase().includes(userSearch.toLowerCase());
+    const matchesRole = roleFilter === "ALL" || u.role === roleFilter;
+    return matchesSearch && matchesRole;
+  });
+
   return (
     <div className="min-h-screen bg-cream px-4 py-8 sm:py-12 sm:pt-24">
       <div className="mx-auto w-full max-w-4xl">
@@ -113,7 +134,7 @@ export default function AdminPage() {
                   : "bg-warm-white text-wood hover:bg-wood/10"
               }`}
             >
-              Letters ({letters.length})
+              Letters ({letterSearch ? `${filteredLetters.length}/${letters.length}` : letters.length})
             </button>
             <button
               onClick={() => setActiveTab("users")}
@@ -123,7 +144,7 @@ export default function AdminPage() {
                   : "bg-warm-white text-wood hover:bg-wood/10"
               }`}
             >
-              Users ({users.length})
+              Users ({userSearch || roleFilter !== "ALL" ? `${filteredUsers.length}/${users.length}` : users.length})
             </button>
           </div>
 
@@ -141,6 +162,15 @@ export default function AdminPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder="Search by title or sender..."
+                  value={letterSearch}
+                  onChange={(e) => setLetterSearch(e.target.value)}
+                  className="w-full rounded-xl border border-wood/20 bg-warm-white px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/40 focus:border-terracotta focus:outline-none focus:ring-1 focus:ring-terracotta"
+                />
+              </div>
               {isLoadingLetters ? (
                 <div className="rounded-2xl bg-warm-white p-12 text-center shadow-lg">
                   <p className="text-foreground/60">Loading letters...</p>
@@ -150,9 +180,13 @@ export default function AdminPage() {
                   <span className="text-4xl">📭</span>
                   <p className="text-foreground/60">No letters yet</p>
                 </div>
+              ) : filteredLetters.length === 0 ? (
+                <div className="flex flex-col items-center gap-3 rounded-2xl bg-warm-white p-12 text-center shadow-lg">
+                  <p className="text-foreground/60">No letters match your search</p>
+                </div>
               ) : (
                 <div className="space-y-3">
-                  {letters.map((letter, i) => (
+                  {filteredLetters.map((letter, i) => (
                     <LetterCard
                       key={letter.id}
                       letter={letter}
@@ -175,6 +209,30 @@ export default function AdminPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+                <input
+                  type="text"
+                  placeholder="Search by name or email..."
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                  className="flex-1 rounded-xl border border-wood/20 bg-warm-white px-4 py-2.5 text-sm text-foreground placeholder:text-foreground/40 focus:border-terracotta focus:outline-none focus:ring-1 focus:ring-terracotta"
+                />
+                <div className="flex gap-1.5">
+                  {(["ALL", "USER", "ADMIN"] as const).map((role) => (
+                    <button
+                      key={role}
+                      onClick={() => setRoleFilter(role)}
+                      className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                        roleFilter === role
+                          ? "bg-terracotta text-warm-white"
+                          : "bg-warm-white text-wood hover:bg-wood/10"
+                      }`}
+                    >
+                      {role === "ALL" ? "All" : role === "USER" ? "User" : "Admin"}
+                    </button>
+                  ))}
+                </div>
+              </div>
               {isLoadingUsers ? (
                 <div className="rounded-2xl bg-warm-white p-12 text-center shadow-lg">
                   <p className="text-foreground/60">Loading users...</p>
@@ -184,9 +242,13 @@ export default function AdminPage() {
                   <span className="text-4xl">👤</span>
                   <p className="text-foreground/60">No users yet</p>
                 </div>
+              ) : filteredUsers.length === 0 ? (
+                <div className="flex flex-col items-center gap-3 rounded-2xl bg-warm-white p-12 text-center shadow-lg">
+                  <p className="text-foreground/60">No users match your filters</p>
+                </div>
               ) : (
                 <div className="space-y-3">
-                  {users.map((u, i) => (
+                  {filteredUsers.map((u, i) => (
                     <motion.div
                       key={u.id}
                       initial={{ opacity: 0, y: 15 }}
@@ -303,6 +365,36 @@ function LetterCard({
           <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-foreground/70">
             {letter.content}
           </p>
+          {/* Recipients section */}
+          {letter.recipients && letter.recipients.length > 0 && (
+            <div className="mt-4">
+              <p className="mb-2 text-xs font-medium uppercase tracking-wide text-foreground/40">
+                Recipients
+              </p>
+              <div className="space-y-2">
+                {letter.recipients.map((r, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between rounded-lg bg-cream/50 px-3 py-2"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-foreground">{r.displayName}</p>
+                      <p className="truncate text-xs text-foreground/50">{r.email}</p>
+                    </div>
+                    <span
+                      className={`flex-shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
+                        r.isRead
+                          ? "bg-moss/15 text-moss"
+                          : "bg-terracotta/15 text-terracotta"
+                      }`}
+                    >
+                      {r.isRead ? "Read" : "Unread"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="mt-4 flex justify-end">
             <CozyButton
               variant="danger"

@@ -65,9 +65,21 @@ export default function InboxPage() {
             &larr; Back home
           </Link>
 
-          <h1 className="mb-8 font-serif text-3xl font-semibold text-terracotta">
-            Your Inbox
-          </h1>
+          <div className="mb-8 flex items-center justify-between">
+            <h1 className="font-serif text-3xl font-semibold text-terracotta">
+              Your Inbox
+            </h1>
+            {!isLoading && !error && letters.length > 0 && (
+              <>
+                <CozyButton as="link" href="/write-letter" className="hidden sm:inline-flex">
+                  Write a Letter
+                </CozyButton>
+                <CozyButton as="link" href="/write-letter" className="px-4 py-2 text-sm sm:hidden">
+                  Write
+                </CozyButton>
+              </>
+            )}
+          </div>
 
           {isLoading && (
             <div className="flex flex-col gap-6 md:flex-row">
