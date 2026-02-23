@@ -9,6 +9,7 @@ import { useInboxStore, type InboxLetter } from "@/stores/useInboxStore";
 import Skeleton from "@/components/cozy/Skeleton";
 import CozyCard from "@/components/cozy/CozyCard";
 import CozyButton from "@/components/cozy/CozyButton";
+import LetterContent from "@/components/cozy/LetterContent";
 
 function formatDate(dateStr: string) {
   const date = new Date(dateStr);
@@ -69,16 +70,6 @@ export default function InboxPage() {
             <h1 className="font-serif text-3xl font-semibold text-terracotta">
               Your Inbox
             </h1>
-            {!isLoading && !error && letters.length > 0 && (
-              <>
-                <CozyButton as="link" href="/write-letter" className="hidden sm:inline-flex">
-                  Write a Letter
-                </CozyButton>
-                <CozyButton as="link" href="/write-letter" className="px-4 py-2 text-sm sm:hidden">
-                  Write
-                </CozyButton>
-              </>
-            )}
           </div>
 
           {isLoading && (
@@ -136,9 +127,6 @@ export default function InboxPage() {
                 No letters yet — but they&apos;ll come! In the meantime, why not
                 brighten someone else&apos;s day?
               </p>
-              <CozyButton as="link" href="/write-letter" className="mt-2">
-                Write a Letter
-              </CozyButton>
             </CozyCard>
           )}
 
@@ -235,9 +223,7 @@ export default function InboxPage() {
 
                     <hr className="my-6 border-wood/10" />
 
-                    <p className="whitespace-pre-wrap text-foreground/70 leading-relaxed">
-                      {selectedLetter.content}
-                    </p>
+                    <LetterContent html={selectedLetter.content} />
                   </motion.div>
                 ) : (
                   <div className="hidden h-full items-center justify-center rounded-2xl bg-warm-white p-12 shadow-lg md:flex">

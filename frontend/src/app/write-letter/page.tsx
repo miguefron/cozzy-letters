@@ -9,6 +9,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import CozyCard from "@/components/cozy/CozyCard";
 import CozyInput from "@/components/cozy/CozyInput";
 import CozyButton from "@/components/cozy/CozyButton";
+import TiptapEditor from "@/components/cozy/TiptapEditor";
 
 type Phase = "writing" | "folding" | "flying" | "success";
 
@@ -18,15 +19,22 @@ export default function WriteLetterPage() {
   const { token } = useAuthStore();
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("writing");
+  const [editorKey, setEditorKey] = useState(0);
 
   useEffect(() => {
     if (!token) router.push("/login");
   }, [token, router]);
 
+  useEffect(() => {
+    if (phase === "success") {
+      reset();
+      setEditorKey((k) => k + 1);
+    }
+  }, [phase, reset]);
+
   const handleWriteAnother = useCallback(() => {
-    reset();
     setPhase("writing");
-  }, [reset]);
+  }, []);
 
   const handleSend = async () => {
     if (!title.trim() || !content.trim()) return;
@@ -70,16 +78,20 @@ export default function WriteLetterPage() {
                   onChange={(e) => setTitle(e.target.value)}
                 />
 
-                <CozyInput
-                  as="textarea"
-                  id="letter-content"
-                  label="Your letter"
-                  placeholder="Dear friend, I wanted to share something with you..."
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  rows={10}
-                  className="resize-none py-4 leading-relaxed"
-                />
+                <div>
+                  <label
+                    htmlFor="letter-content"
+                    className="mb-1.5 block text-sm font-medium text-foreground/70"
+                  >
+                    Your letter
+                  </label>
+                  <TiptapEditor
+                    key={editorKey}
+                    content={content}
+                    onChange={(html) => setContent(html)}
+                    placeholder="Dear friend, I wanted to share something with you..."
+                  />
+                </div>
 
                 {error && (
                   <motion.p
@@ -117,9 +129,10 @@ export default function WriteLetterPage() {
               <h2 className="mb-4 font-serif text-3xl font-semibold text-terracotta">
                 {title || "Your Letter"}
               </h2>
-              <p className="whitespace-pre-wrap text-foreground/70 leading-relaxed line-clamp-6">
-                {content}
-              </p>
+              <div
+                className="cozy-prose line-clamp-6"
+                dangerouslySetInnerHTML={{ __html: content }}
+              />
             </motion.div>
           )}
 

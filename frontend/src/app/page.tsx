@@ -198,8 +198,8 @@ export default function Home() {
                 <Skeleton className="h-12 w-40 rounded-2xl" />
               </>
             ) : isLoggedIn ? (
-              <CozyButton as="link" href="/write-letter">
-                Write a Letter
+              <CozyButton as="link" href="/inbox">
+                Go to Inbox
               </CozyButton>
             ) : (
               <>
@@ -302,8 +302,8 @@ export default function Home() {
             {!mounted ? (
               <Skeleton className="h-12 w-44 rounded-2xl" />
             ) : isLoggedIn ? (
-              <CozyButton as="link" href="/write-letter">
-                Write a Letter
+              <CozyButton as="link" href="/inbox">
+                Go to Inbox
               </CozyButton>
             ) : (
               <>

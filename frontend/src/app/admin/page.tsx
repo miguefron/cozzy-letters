@@ -10,6 +10,7 @@ import {
   type AdminLetter,
 } from "@/stores/useAdminStore";
 import CozyButton from "@/components/cozy/CozyButton";
+import LetterContent from "@/components/cozy/LetterContent";
 
 function formatDate(dateStr: string) {
   const date = new Date(dateStr);
@@ -362,9 +363,7 @@ function LetterCard({
           transition={{ duration: 0.2 }}
           className="border-t border-wood/10 px-5 pb-5"
         >
-          <p className="mt-4 whitespace-pre-wrap text-sm leading-relaxed text-foreground/70">
-            {letter.content}
-          </p>
+          <LetterContent html={letter.content} className="mt-4 text-sm" />
           {/* Recipients section */}
           {letter.recipients && letter.recipients.length > 0 && (
             <div className="mt-4">

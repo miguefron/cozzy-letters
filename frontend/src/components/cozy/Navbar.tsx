@@ -120,12 +120,6 @@ export default function Navbar() {
           {isLoggedIn ? (
             <>
               <NavLink
-                href="/write-letter"
-                label="Write a Letter"
-                className="text-terracotta hover:text-terracotta/80"
-                pathname={pathname}
-              />
-              <NavLink
                 href="/inbox"
                 label="Inbox"
                 className="text-moss hover:text-moss/80"
@@ -253,9 +247,6 @@ export default function Navbar() {
                       <p className="text-xs text-foreground/50">{user.email}</p>
                     </div>
                   </div>
-                  <MobileLink href="/write-letter" active={pathname === "/write-letter"} className="text-terracotta">
-                    Write a Letter
-                  </MobileLink>
                   <MobileLink href="/inbox" active={pathname === "/inbox"} className="text-moss">
                     Inbox
                   </MobileLink>
