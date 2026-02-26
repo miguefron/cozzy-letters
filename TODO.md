@@ -22,4 +22,4 @@
 - [ ] **Rate limiting** — Máx 10 cartas/día por usuario
 - [x] **Responsive polish** — Revisar navbar y formularios en móvil
 - [ ] **Tests** — Tests unitarios y de integración (frontend + backend)
-- [ ] **Producción** — Variables de entorno, HTTPS, Docker multi-stage, deploy config
+- [x] **Producción** — Variables de entorno, HTTPS, Docker multi-stage, deploy config

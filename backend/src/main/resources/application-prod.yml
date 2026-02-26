@@ -7,6 +7,8 @@ spring:
     init:
       mode: never
   jpa:
+    hibernate:
+      ddl-auto: validate
     show-sql: false
   security:
     oauth2:
