@@ -87,6 +87,68 @@ bun dev
 
 The app will be available at `http://localhost:3000`.
 
+## Production Deployment
+
+### Prerequisites
+
+- A Linux server with Docker and Nginx installed
+- A domain or subdomain pointing to the server IP
+- Google OAuth2 credentials (from [Google Cloud Console](https://console.cloud.google.com/apis/credentials))
+
+### 1. Clone and configure
+
+```bash
+git clone https://github.com/miguefron/cozzy-letters.git /var/cozyletters
+cd /var/cozyletters
+cp .env.production.example .env.production
+```
+
+Edit `.env.production` with your real values (database password, JWT secret, Google OAuth credentials, domain URLs).
+
+### 2. Create the database schema (first time only)
+
+The prod profile uses `ddl-auto: validate`, so tables must exist before starting. Run the backend once with `update` to create them:
+
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d postgres
+# Wait for postgres to be healthy, then:
+docker compose --env-file .env.production -f docker-compose.prod.yml run --rm \
+  -e SPRING_JPA_HIBERNATE_DDL_AUTO=update backend
+```
+
+Stop it once it starts successfully (Ctrl+C), then proceed normally.
+
+### 3. Build and start all services
+
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml up -d --build
+```
+
+### 4. Configure Nginx
+
+```bash
+cp nginx/cozyletters.conf /etc/nginx/sites-enabled/cozyletters.conf
+nginx -t && systemctl reload nginx
+```
+
+The app will be available at `http://yourdomain:8080`.
+
+### 5. Subsequent deploys
+
+A deploy script is available at `/home/deploy-cozyletters.sh`:
+
+```bash
+bash /home/deploy-cozyletters.sh
+```
+
+This pulls the latest code, rebuilds the containers, and reloads Nginx.
+
+### Google OAuth2 setup
+
+In the Google Cloud Console, add:
+- **Authorized JavaScript origins**: `http://yourdomain:8080`
+- **Authorized redirect URIs**: `http://yourdomain:8080/login/oauth2/code/google`
+
 ## API Endpoints
 
 | Method | Endpoint              | Auth     | Description                        |
