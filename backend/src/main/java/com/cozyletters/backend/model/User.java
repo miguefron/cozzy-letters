@@ -22,6 +22,9 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER;
 
+    @Column(nullable = false)
+    private boolean searchable = true;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -49,4 +52,7 @@ public class User {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public boolean isSearchable() { return searchable; }
+    public void setSearchable(boolean searchable) { this.searchable = searchable; }
 }

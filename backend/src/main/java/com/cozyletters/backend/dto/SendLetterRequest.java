@@ -17,4 +17,9 @@ public class SendLetterRequest {
 
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
+
+    private Long recipientId;
+
+    public Long getRecipientId() { return recipientId; }
+    public void setRecipientId(Long recipientId) { this.recipientId = recipientId; }
 }

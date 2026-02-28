@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { useAuthStore } from "@/stores/useAuthStore";
 import CozyButton from "@/components/cozy/CozyButton";
 import Skeleton from "@/components/cozy/Skeleton";
@@ -60,29 +60,56 @@ function EnvelopeSVG({ size }: { size: number }) {
   );
 }
 
-function FloatingEnvelopes() {
+function FloatingEnvelopes({
+  scrollYProgress,
+}: {
+  scrollYProgress: ReturnType<typeof useScroll>["scrollYProgress"];
+}) {
+  /* Each envelope gets a parallax depth based on its size.
+     Larger envelopes = bigger depth (faster, foreground).
+     Smaller envelopes = smaller depth (slower, background). */
+  const depths = envelopes.map((env) => env.size * 3);
+
+  const y0 = useTransform(scrollYProgress, [0, 1], [0, -depths[0]]);
+  const y1 = useTransform(scrollYProgress, [0, 1], [0, -depths[1]]);
+  const y2 = useTransform(scrollYProgress, [0, 1], [0, -depths[2]]);
+  const y3 = useTransform(scrollYProgress, [0, 1], [0, -depths[3]]);
+  const y4 = useTransform(scrollYProgress, [0, 1], [0, -depths[4]]);
+  const y5 = useTransform(scrollYProgress, [0, 1], [0, -depths[5]]);
+  const y6 = useTransform(scrollYProgress, [0, 1], [0, -depths[6]]);
+
+  const parallaxValues = [y0, y1, y2, y3, y4, y5, y6];
+
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       {envelopes.map((env, i) => (
         <motion.div
           key={i}
           className="absolute"
-          style={{ left: env.x, top: env.y }}
-          initial={{ opacity: 0, y: 0, rotate: env.rotation }}
-          animate={{
-            opacity: [0, 0.7, 0.7, 0],
-            y: [0, -30, -60, -30, 0],
-            x: [0, 15, -10, 20, 0],
-            rotate: [env.rotation, env.rotation + 5, env.rotation - 5, env.rotation],
-          }}
-          transition={{
-            duration: env.duration,
-            delay: env.delay,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
+          style={{ left: env.x, top: env.y, y: parallaxValues[i] }}
         >
-          <EnvelopeSVG size={env.size} />
+          <motion.div
+            initial={{ opacity: 0, y: 0, rotate: env.rotation }}
+            animate={{
+              opacity: [0, 0.7, 0.7, 0],
+              y: [0, -30, -60, -30, 0],
+              x: [0, 15, -10, 20, 0],
+              rotate: [
+                env.rotation,
+                env.rotation + 5,
+                env.rotation - 5,
+                env.rotation,
+              ],
+            }}
+            transition={{
+              duration: env.duration,
+              delay: env.delay,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          >
+            <EnvelopeSVG size={env.size} />
+          </motion.div>
         </motion.div>
       ))}
     </div>
@@ -145,23 +172,172 @@ const fadeUp = {
   }),
 };
 
+/* ─── Animated Counter Component ─── */
+
+function AnimatedCounter() {
+  const [letterCount, setLetterCount] = useState<number | null>(null);
+  const [displayCount, setDisplayCount] = useState(0);
+  const counterRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(counterRef, { once: true, margin: "-80px" });
+
+  useEffect(() => {
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+    fetch(`${apiUrl}/letters/count`)
+      .then((res) => res.json())
+      .then((data) => {
+        const count = typeof data === "number" ? data : data.count ?? 0;
+        setLetterCount(count);
+      })
+      .catch(() => setLetterCount(0));
+  }, []);
+
+  useEffect(() => {
+    if (!isInView || letterCount === null || letterCount === 0) return;
+
+    const duration = 2000;
+    const start = performance.now();
+    let rafId: number;
+
+    function tick(now: number) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplayCount(Math.round(eased * letterCount!));
+      if (progress < 1) {
+        rafId = requestAnimationFrame(tick);
+      }
+    }
+
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [isInView, letterCount]);
+
+  return (
+    <motion.div
+      ref={counterRef}
+      className="mx-auto max-w-xl rounded-3xl bg-warm-white p-10 text-center shadow-sm"
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.5 }}
+    >
+      <span className="text-5xl font-serif font-bold text-terracotta sm:text-7xl">
+        {letterCount === null ? "--" : displayCount.toLocaleString()}
+      </span>
+      <p className="mt-3 text-lg text-foreground/60">letters sent with love</p>
+    </motion.div>
+  );
+}
+
+/* ─── Interactive Letter Preview ─── */
+
+function InteractiveLetterPreview() {
+  const previewRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: previewRef,
+    offset: ["start end", "end start"],
+  });
+
+  const flapRotate = useTransform(scrollYProgress, [0.2, 0.5], [0, 180]);
+  const letterY = useTransform(scrollYProgress, [0.3, 0.6], [0, -100]);
+  const contentOpacity = useTransform(scrollYProgress, [0.4, 0.7], [0, 1]);
+
+  return (
+    <div ref={previewRef} className="mx-auto mt-12 max-w-sm w-full">
+      <div style={{ perspective: 1000 }}>
+        {/* Envelope container */}
+        <div className="relative mx-auto w-64 sm:w-72">
+          {/* Letter paper that slides up */}
+          <motion.div
+            className="absolute left-1/2 -translate-x-1/2 w-[85%] rounded-xl bg-[#FEFCF9] p-5 shadow-md z-0"
+            style={{ y: letterY, bottom: "50%" }}
+          >
+            <motion.p
+              className="text-sm leading-relaxed text-foreground/80"
+              style={{
+                opacity: contentOpacity,
+                fontFamily: "'Georgia', serif",
+                fontStyle: "italic",
+              }}
+            >
+              Dear friend, I just wanted you to know that you&apos;re doing
+              great. The world is a little brighter because you&apos;re in it.
+              Keep going — someone out there is cheering for you.
+            </motion.p>
+          </motion.div>
+
+          {/* Envelope body */}
+          <div className="relative z-10 h-36 sm:h-40 rounded-xl bg-[#D4A574] shadow-lg overflow-hidden">
+            {/* Inner shadow / fold line */}
+            <div className="absolute inset-x-0 top-0 h-px bg-[#C4756B]/20" />
+            {/* Small heart decoration */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
+              <svg
+                width="20"
+                height="18"
+                viewBox="0 0 20 18"
+                fill="#C4756B"
+                opacity="0.4"
+              >
+                <path d="M10 18 C10 18 0 11 0 5 C0 2 2 0 5 0 C7 0 9 1.5 10 3 C11 1.5 13 0 15 0 C18 0 20 2 20 5 C20 11 10 18 10 18Z" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Envelope flap */}
+          <motion.div
+            className="absolute top-0 left-0 w-full z-20"
+            style={{
+              rotateX: flapRotate,
+              transformOrigin: "top center",
+              transformStyle: "preserve-3d",
+            }}
+          >
+            <svg
+              viewBox="0 0 288 80"
+              className="w-full"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M0 0 H288 V4 L144 80 L0 4 Z"
+                fill="#C9936E"
+                stroke="#D4A574"
+                strokeWidth="1"
+              />
+            </svg>
+          </motion.div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ─── Page ─── */
 
 export default function Home() {
   const { token } = useAuthStore();
   const [mounted, setMounted] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => setMounted(true), []);
+
+  const { scrollYProgress } = useScroll({ container: containerRef });
 
   const isLoggedIn = mounted && !!token;
 
   return (
-    <div className="bg-cream text-foreground">
-      {/* ──── Hero Section ──── */}
-      <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4">
+    <div
+      ref={containerRef}
+      className="h-screen overflow-y-auto snap-y snap-mandatory bg-cream text-foreground"
+    >
+      {/* ──── Section 1: Hero ──── */}
+      <section className="relative snap-start min-h-screen flex flex-col items-center justify-center overflow-hidden px-4">
         {/* Subtle radial gradient backdrop */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(196,117,107,0.08)_0%,_transparent_70%)]" />
 
-        <FloatingEnvelopes />
+        <FloatingEnvelopes scrollYProgress={scrollYProgress} />
 
         <motion.div
           className="relative z-10 mx-auto max-w-2xl text-center"
@@ -232,8 +408,8 @@ export default function Home() {
         </motion.div>
       </section>
 
-      {/* ──── How It Works Section ──── */}
-      <section className="px-4 py-24 sm:py-32">
+      {/* ──── Section 2: How It Works ──── */}
+      <section className="snap-start min-h-screen flex flex-col items-center justify-center px-4 py-24 sm:py-32">
         <div className="mx-auto max-w-4xl">
           <motion.h2
             className="text-center font-serif text-3xl font-bold text-terracotta sm:text-4xl"
@@ -270,7 +446,7 @@ export default function Home() {
             ))}
           </div>
 
-          {/* Step connectors for desktop */}
+          {/* Step connectors for mobile */}
           <div className="mt-6 flex justify-center gap-2 sm:hidden">
             {steps.map((_, i) => (
               <span
@@ -282,10 +458,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ──── Call-to-Action Section ──── */}
-      <section className="px-4 py-20">
+      {/* ──── Section 3: Counter + Preview + CTA + Footer ──── */}
+      <section className="snap-start min-h-screen flex flex-col items-center justify-center px-4 py-16">
+        {/* Letter Counter */}
+        <AnimatedCounter />
+
+        {/* Interactive Letter Preview */}
+        <InteractiveLetterPreview />
+
+        {/* CTA card */}
         <motion.div
-          className="mx-auto max-w-xl rounded-3xl bg-warm-white p-10 text-center shadow-sm sm:p-14"
+          className="mx-auto mt-12 max-w-xl rounded-3xl bg-warm-white p-10 text-center shadow-sm sm:p-14"
           initial={{ opacity: 0, scale: 0.96 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true, margin: "-80px" }}
@@ -317,12 +500,12 @@ export default function Home() {
             )}
           </div>
         </motion.div>
-      </section>
 
-      {/* ──── Footer ──── */}
-      <footer className="py-10 text-center">
-        <p className="text-sm text-wood">Made with warmth and care</p>
-      </footer>
+        {/* Footer */}
+        <footer className="mt-12 py-10 text-center">
+          <p className="text-sm text-wood">Made with warmth and care</p>
+        </footer>
+      </section>
     </div>
   );
 }

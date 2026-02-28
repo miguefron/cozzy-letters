@@ -1,12 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
 import Navbar from "./Navbar";
 import FAB from "./FAB";
 import QuickLetterModal from "./QuickLetterModal";
+import NotificationContainer from "./NotificationContainer";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useNotificationStore } from "@/stores/useNotificationStore";
+import { useSse } from "@/lib/useSse";
 
 export default function LayoutShell({
   children,
@@ -21,6 +24,20 @@ export default function LayoutShell({
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
+
+  const handleSseEvent = useCallback((eventName: string, data: unknown) => {
+    if (eventName === "new_letter") {
+      useNotificationStore.getState().addNotification(data as {
+        letterId: number;
+        letterRecipientId: number;
+        title: string;
+        senderName: string;
+        deliveredAt: string;
+      });
+    }
+  }, []);
+
+  useSse({ enabled: mounted && !!token, onEvent: handleSseEvent });
 
   const showFAB = mounted && !!token && !isLanding && !isWriteLetter;
 
@@ -37,6 +54,8 @@ export default function LayoutShell({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
+
+      <NotificationContainer />
     </>
   );
 }

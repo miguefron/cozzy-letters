@@ -7,13 +7,15 @@ public class UserProfileResponse {
     private final boolean hasPassword;
     private final String createdAt;
     private final String role;
+    private final boolean searchable;
 
-    public UserProfileResponse(String email, String displayName, boolean hasPassword, String createdAt, String role) {
+    public UserProfileResponse(String email, String displayName, boolean hasPassword, String createdAt, String role, boolean searchable) {
         this.email = email;
         this.displayName = displayName;
         this.hasPassword = hasPassword;
         this.createdAt = createdAt;
         this.role = role;
+        this.searchable = searchable;
     }
 
     public String getEmail() { return email; }
@@ -21,4 +23,5 @@ public class UserProfileResponse {
     public boolean isHasPassword() { return hasPassword; }
     public String getCreatedAt() { return createdAt; }
     public String getRole() { return role; }
+    public boolean isSearchable() { return searchable; }
 }

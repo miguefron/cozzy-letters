@@ -17,12 +17,12 @@ function CallbackHandler() {
     if (token && email && displayName) {
       if (typeof window !== "undefined") {
         localStorage.setItem("cl_token", JSON.stringify(token));
-        localStorage.setItem("cl_user", JSON.stringify({ email, displayName, role }));
+        localStorage.setItem("cl_user", JSON.stringify({ email, displayName, role, searchable: true }));
       }
 
       useAuthStore.setState({
         token,
-        user: { email, displayName, role },
+        user: { email, displayName, role, searchable: true },
         isLoading: false,
         error: null,
       });

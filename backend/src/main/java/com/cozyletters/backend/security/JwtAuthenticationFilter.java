@@ -31,19 +31,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
+        String token = null;
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
+            token = authHeader.substring(7);
+        } else if (request.getRequestURI().startsWith("/api/sse/")) {
+            token = request.getParameter("token");
+        }
 
-            if (jwtService.isTokenValid(token)) {
-                String email = jwtService.extractEmail(token);
-                User user = userRepository.findByEmail(email).orElse(null);
-                if (user != null) {
-                    UsernamePasswordAuthenticationToken authentication =
-                            new UsernamePasswordAuthenticationToken(email, null,
-                                    List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())));
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                }
+        if (token != null && jwtService.isTokenValid(token)) {
+            String email = jwtService.extractEmail(token);
+            User user = userRepository.findByEmail(email).orElse(null);
+            if (user != null) {
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(email, null,
+                                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name())));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
 

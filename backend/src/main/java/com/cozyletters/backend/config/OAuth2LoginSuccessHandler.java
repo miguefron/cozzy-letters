@@ -4,6 +4,7 @@ import com.cozyletters.backend.model.Role;
 import com.cozyletters.backend.model.User;
 import com.cozyletters.backend.repository.UserRepository;
 import com.cozyletters.backend.security.JwtService;
+import com.cozyletters.backend.service.WelcomeLetterService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
@@ -25,10 +26,13 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final WelcomeLetterService welcomeLetterService;
 
-    public OAuth2LoginSuccessHandler(UserRepository userRepository, JwtService jwtService) {
+    public OAuth2LoginSuccessHandler(UserRepository userRepository, JwtService jwtService,
+                                     WelcomeLetterService welcomeLetterService) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
+        this.welcomeLetterService = welcomeLetterService;
     }
 
     @Override
@@ -40,6 +44,7 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String name = oAuth2User.getAttribute("name");
 
         // Find or create user
+        boolean[] isNewUser = {false};
         User user = userRepository.findByEmail(email)
             .orElseGet(() -> {
                 User newUser = new User();
@@ -47,8 +52,13 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 newUser.setDisplayName(name);
                 newUser.setRole(Role.USER);
                 // No password for OAuth2 users
+                isNewUser[0] = true;
                 return userRepository.save(newUser);
             });
+
+        if (isNewUser[0]) {
+            welcomeLetterService.sendWelcomeLetter(user);
+        }
 
         // Generate JWT
         String token = jwtService.generateToken(email);

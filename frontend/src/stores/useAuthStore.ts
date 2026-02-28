@@ -5,6 +5,7 @@ export interface AuthUser {
   email: string;
   displayName: string;
   role: string;
+  searchable: boolean;
 }
 
 interface AuthState {
@@ -53,7 +54,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
 
       const data = await res.json();
-      const user: AuthUser = { email: data.email, displayName: data.displayName, role: data.role ?? "USER" };
+      const user: AuthUser = { email: data.email, displayName: data.displayName, role: data.role ?? "USER", searchable: data.searchable ?? true };
 
       if (typeof window !== "undefined") {
         localStorage.setItem("cl_token", JSON.stringify(data.token));
@@ -83,7 +84,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       }
 
       const data = await res.json();
-      const user: AuthUser = { email: data.email, displayName: data.displayName, role: data.role ?? "USER" };
+      const user: AuthUser = { email: data.email, displayName: data.displayName, role: data.role ?? "USER", searchable: data.searchable ?? true };
 
       if (typeof window !== "undefined") {
         localStorage.setItem("cl_token", JSON.stringify(data.token));
@@ -116,7 +117,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       if (!res.ok) throw new Error("Session expired");
 
       const data = await res.json();
-      const user: AuthUser = { email: data.email, displayName: data.displayName, role: data.role ?? "USER" };
+      const user: AuthUser = { email: data.email, displayName: data.displayName, role: data.role ?? "USER", searchable: data.searchable ?? true };
 
       if (typeof window !== "undefined") {
         localStorage.setItem("cl_user", JSON.stringify(user));

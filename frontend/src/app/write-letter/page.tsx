@@ -1,25 +1,72 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useLetterStore } from "@/stores/useLetterStore";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { apiFetch } from "@/lib/api";
 import CozyCard from "@/components/cozy/CozyCard";
 import CozyInput from "@/components/cozy/CozyInput";
 import CozyButton from "@/components/cozy/CozyButton";
 import TiptapEditor from "@/components/cozy/TiptapEditor";
 
 type Phase = "writing" | "folding" | "flying" | "success";
+type SendMode = "random" | "specific";
+
+interface UserSearchResult {
+  id: number;
+  displayName: string;
+}
 
 export default function WriteLetterPage() {
-  const { title, content, isSending, isSent, error, setTitle, setContent, sendLetter, reset } =
+  const { title, content, isSending, isSent, error, setTitle, setContent, sendLetter, reset, recipientId, recipientName, setRecipient, clearRecipient } =
     useLetterStore();
   const { token } = useAuthStore();
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("writing");
   const [editorKey, setEditorKey] = useState(0);
+
+  // Recipient search
+  const [sendMode, setSendMode] = useState<SendMode>("random");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<UserSearchResult[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (sendMode === "random") {
+      clearRecipient();
+      setSearchQuery("");
+      setSearchResults([]);
+    }
+  }, [sendMode, clearRecipient]);
+
+  useEffect(() => {
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    if (!searchQuery.trim() || searchQuery.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    setSearchLoading(true);
+    searchTimeout.current = setTimeout(async () => {
+      try {
+        const res = await apiFetch(`/users/search?q=${encodeURIComponent(searchQuery.trim())}`);
+        if (res.ok) {
+          const data = await res.json();
+          setSearchResults(data);
+        }
+      } catch {
+        // ignore
+      } finally {
+        setSearchLoading(false);
+      }
+    }, 300);
+    return () => {
+      if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    };
+  }, [searchQuery]);
 
   useEffect(() => {
     if (!token) router.push("/login");
@@ -33,6 +80,7 @@ export default function WriteLetterPage() {
   }, [phase, reset]);
 
   const handleWriteAnother = useCallback(() => {
+    setSendMode("random");
     setPhase("writing");
   }, []);
 
@@ -63,9 +111,100 @@ export default function WriteLetterPage() {
                 &larr; Back home
               </Link>
 
-              <h2 className="mb-8 font-serif text-3xl font-semibold text-terracotta">
+              <h2 className="mb-6 font-serif text-3xl font-semibold text-terracotta">
                 Write a Letter
               </h2>
+
+              {/* Send mode toggle */}
+              <div className="mb-6">
+                <div className="flex rounded-xl bg-cream/60 p-1">
+                  <button
+                    type="button"
+                    onClick={() => setSendMode("random")}
+                    className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+                      sendMode === "random"
+                        ? "bg-warm-white text-terracotta shadow-sm"
+                        : "text-wood/60 hover:text-wood"
+                    }`}
+                  >
+                    Random souls
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSendMode("specific")}
+                    className={`flex-1 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
+                      sendMode === "specific"
+                        ? "bg-warm-white text-terracotta shadow-sm"
+                        : "text-wood/60 hover:text-wood"
+                    }`}
+                  >
+                    Specific person
+                  </button>
+                </div>
+
+                {sendMode === "specific" && (
+                  <div className="mt-4">
+                    {recipientId && recipientName ? (
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#D4A574]/15 px-3 py-1.5 text-sm font-medium text-[#5C4033]">
+                          {recipientName}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              clearRecipient();
+                              setSearchQuery("");
+                            }}
+                            className="ml-1 text-[#A68B6B]/60 transition-colors hover:text-[#A68B6B]"
+                            aria-label="Clear recipient"
+                          >
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                              <path d="M1 1L11 11M1 11L11 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                            </svg>
+                          </button>
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="Search by name..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="w-full rounded-xl border border-wood/20 bg-warm-white px-4 py-2.5 text-sm text-foreground placeholder:text-wood/40 focus:border-terracotta/40 focus:outline-none focus:ring-2 focus:ring-terracotta/10"
+                        />
+                        {searchLoading && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-wood/20 border-t-terracotta" />
+                          </div>
+                        )}
+                        {searchResults.length > 0 && (
+                          <div className="absolute z-10 mt-1 w-full rounded-xl border border-wood/10 bg-warm-white py-1 shadow-lg">
+                            {searchResults.map((user) => (
+                              <button
+                                key={user.id}
+                                type="button"
+                                onClick={() => {
+                                  setRecipient(user.id, user.displayName);
+                                  setSearchResults([]);
+                                  setSearchQuery("");
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-foreground transition-colors hover:bg-cream/60"
+                              >
+                                {user.displayName}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        {searchQuery.trim().length >= 2 && !searchLoading && searchResults.length === 0 && (
+                          <div className="absolute z-10 mt-1 w-full rounded-xl border border-wood/10 bg-warm-white px-4 py-3 text-sm text-wood/60 shadow-lg">
+                            No users found
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
               <div className="flex flex-col gap-6">
                 <CozyInput

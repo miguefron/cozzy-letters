@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useInboxStore, type InboxLetter } from "@/stores/useInboxStore";
@@ -10,6 +10,7 @@ import Skeleton from "@/components/cozy/Skeleton";
 import CozyCard from "@/components/cozy/CozyCard";
 import CozyButton from "@/components/cozy/CozyButton";
 import LetterContent from "@/components/cozy/LetterContent";
+import LetterQueueOverlay from "@/components/cozy/LetterQueueOverlay";
 
 function formatDate(dateStr: string) {
   const date = new Date(dateStr);
@@ -35,6 +36,19 @@ export default function InboxPage() {
     selectLetter,
     clearSelection,
   } = useInboxStore();
+
+  const [showQueue, setShowQueue] = useState(false);
+  const queueSnapshotRef = useRef<InboxLetter[]>([]);
+
+  const unreadLetters = useMemo(
+    () => letters.filter((l) => !l.isRead),
+    [letters]
+  );
+
+  const handleOpenQueue = () => {
+    queueSnapshotRef.current = unreadLetters;
+    setShowQueue(true);
+  };
 
   useEffect(() => {
     if (!token) router.push("/login");
@@ -71,6 +85,29 @@ export default function InboxPage() {
               Your Inbox
             </h1>
           </div>
+
+          <AnimatePresence>
+            {unreadLetters.length > 0 && !showQueue && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="mb-6 flex items-center justify-between rounded-xl border border-terracotta/20 bg-terracotta/10 px-5 py-3"
+              >
+                <p className="text-sm font-medium text-terracotta">
+                  You have {unreadLetters.length} new letter
+                  {unreadLetters.length !== 1 && "s"}!
+                </p>
+                <button
+                  onClick={handleOpenQueue}
+                  className="text-sm font-semibold text-terracotta transition-colors hover:text-terracotta/80"
+                >
+                  Read them &rarr;
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {isLoading && (
             <div className="flex flex-col gap-6 md:flex-row">
@@ -237,6 +274,14 @@ export default function InboxPage() {
           )}
         </motion.div>
       </div>
+
+      {showQueue && queueSnapshotRef.current.length > 0 && (
+        <LetterQueueOverlay
+          letters={queueSnapshotRef.current}
+          onClose={() => setShowQueue(false)}
+          onMarkAsRead={markAsRead}
+        />
+      )}
     </div>
   );
 }

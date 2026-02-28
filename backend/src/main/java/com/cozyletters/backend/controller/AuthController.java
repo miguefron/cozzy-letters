@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -44,7 +46,8 @@ public class AuthController {
                 user.getDisplayName(),
                 user.getPasswordHash() != null,
                 user.getCreatedAt().toString(),
-                user.getRole().name()));
+                user.getRole().name(),
+                user.isSearchable()));
     }
 
     @PatchMapping("/me")
@@ -58,7 +61,8 @@ public class AuthController {
                 user.getDisplayName(),
                 user.getPasswordHash() != null,
                 user.getCreatedAt().toString(),
-                user.getRole().name()));
+                user.getRole().name(),
+                user.isSearchable()));
     }
 
     @PutMapping("/me/password")
@@ -68,5 +72,26 @@ public class AuthController {
         String email = authentication.getName();
         authService.changePassword(email, request.getCurrentPassword(), request.getNewPassword());
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/me/searchable")
+    public ResponseEntity<UserProfileResponse> updateSearchable(
+            Authentication authentication,
+            @RequestBody Map<String, Boolean> request) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Boolean searchable = request.get("searchable");
+        if (searchable != null) {
+            user.setSearchable(searchable);
+            userRepository.save(user);
+        }
+        return ResponseEntity.ok(new UserProfileResponse(
+                user.getEmail(),
+                user.getDisplayName(),
+                user.getPasswordHash() != null,
+                user.getCreatedAt().toString(),
+                user.getRole().name(),
+                user.isSearchable()));
     }
 }

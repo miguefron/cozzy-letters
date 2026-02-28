@@ -9,16 +9,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import com.cozyletters.backend.repository.LetterRepository;
+
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/letters")
 public class LetterController {
 
     private final LetterService letterService;
+    private final LetterRepository letterRepository;
 
-    public LetterController(LetterService letterService) {
+    public LetterController(LetterService letterService, LetterRepository letterRepository) {
         this.letterService = letterService;
+        this.letterRepository = letterRepository;
     }
 
     @PostMapping
@@ -27,8 +32,14 @@ public class LetterController {
             @Valid @RequestBody SendLetterRequest request) {
 
         String email = authentication.getName();
-        LetterResponse response = letterService.sendLetter(email, request.getTitle(), request.getContent());
+        LetterResponse response = letterService.sendLetter(email, request.getTitle(), request.getContent(), request.getRecipientId());
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<Map<String, Long>> getLetterCount() {
+        long count = letterRepository.count();
+        return ResponseEntity.ok(Map.of("count", count));
     }
 
     @GetMapping("/inbox")
