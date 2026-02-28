@@ -1,6 +1,7 @@
 package com.cozyletters.backend.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -12,7 +13,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SseService {
 
     private final ConcurrentHashMap<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
+
+    public SseService(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     public SseEmitter subscribe(Long userId) {
         SseEmitter emitter = new SseEmitter(30 * 60 * 1000L); // 30 minutes
@@ -40,7 +45,7 @@ public class SseService {
         if (emitter == null) return;
         try {
             String json = objectMapper.writeValueAsString(data);
-            emitter.send(SseEmitter.event().name(eventName).data(json));
+            emitter.send(SseEmitter.event().name(eventName).data(json, MediaType.TEXT_PLAIN));
         } catch (IOException e) {
             emitters.remove(userId, emitter);
         }

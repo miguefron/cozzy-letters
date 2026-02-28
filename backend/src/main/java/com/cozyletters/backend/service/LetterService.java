@@ -12,8 +12,11 @@ import com.cozyletters.backend.repository.UserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -70,6 +73,8 @@ public class LetterService {
 
         Letter saved = letterRepository.save(letter);
 
+        // Collect notification data while still in transaction (entities are managed)
+        List<SseNotificationTask> tasks = new ArrayList<>();
         for (LetterRecipient lr : saved.getRecipients()) {
             NewLetterNotification notification = new NewLetterNotification(
                     lr.getId(),
@@ -78,8 +83,18 @@ public class LetterService {
                     sender.getDisplayName(),
                     lr.getDeliveredAt()
             );
-            sseService.sendEvent(lr.getRecipient().getId(), "new_letter", notification);
+            tasks.add(new SseNotificationTask(lr.getRecipient().getId(), notification));
         }
+
+        // Send SSE events after transaction commits so data is guaranteed persisted
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                for (SseNotificationTask task : tasks) {
+                    sseService.sendEvent(task.recipientUserId, "new_letter", task.notification);
+                }
+            }
+        });
 
         return new LetterResponse(
                 saved.getId(),
@@ -90,6 +105,8 @@ public class LetterService {
                 saved.getCreatedAt()
         );
     }
+
+    private record SseNotificationTask(Long recipientUserId, NewLetterNotification notification) {}
 
     @Transactional(readOnly = true)
     public List<InboxLetterResponse> getInbox(String recipientEmail) {
