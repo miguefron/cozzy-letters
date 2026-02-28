@@ -26,7 +26,9 @@ export default function LayoutShell({
   useEffect(() => setMounted(true), []);
 
   const handleSseEvent = useCallback((eventName: string, data: unknown) => {
+    console.log("[SSE] LayoutShell received event:", eventName, data);
     if (eventName === "new_letter") {
+      console.log("[SSE] Adding notification to store");
       useNotificationStore.getState().addNotification(data as {
         letterId: number;
         letterRecipientId: number;
@@ -34,6 +36,7 @@ export default function LayoutShell({
         senderName: string;
         deliveredAt: string;
       });
+      console.log("[SSE] Store notifications:", useNotificationStore.getState().notifications);
     }
   }, []);
 
