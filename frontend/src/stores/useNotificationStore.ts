@@ -16,6 +16,18 @@ interface NotificationState {
   clearAll: () => void;
 }
 
+// crypto.randomUUID() requires HTTPS; fall back for plain HTTP
+function generateId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    try {
+      return crypto.randomUUID();
+    } catch {
+      // Secure context required – fall through
+    }
+  }
+  return Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
 export const useNotificationStore = create<NotificationState>((set) => ({
   notifications: [],
 
@@ -23,7 +35,7 @@ export const useNotificationStore = create<NotificationState>((set) => ({
     set((state) => ({
       notifications: [
         ...state.notifications,
-        { ...n, id: crypto.randomUUID() },
+        { ...n, id: generateId() },
       ],
     })),
 
