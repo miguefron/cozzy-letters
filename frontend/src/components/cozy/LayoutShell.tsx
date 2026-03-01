@@ -9,6 +9,7 @@ import QuickLetterModal from "./QuickLetterModal";
 import NotificationContainer from "./NotificationContainer";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { useNotificationStore } from "@/stores/useNotificationStore";
+import { useInboxStore } from "@/stores/useInboxStore";
 import { useSse } from "@/lib/useSse";
 
 export default function LayoutShell({
@@ -34,6 +35,7 @@ export default function LayoutShell({
         senderName: string;
         deliveredAt: string;
       });
+      useInboxStore.getState().fetchInbox();
     }
   }, []);
 
