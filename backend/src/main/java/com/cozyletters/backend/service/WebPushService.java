@@ -89,7 +89,7 @@ public class WebPushService {
         pushSubscriptionRepository.deleteByUserIdAndEndpoint(user.getId(), endpoint);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public void sendPushToUser(Long userId, String title, String body) {
         if (!enabled) {
             log.debug("Push not enabled, skipping for user {}", userId);
