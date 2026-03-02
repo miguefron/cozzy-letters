@@ -59,6 +59,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/sse/subscribe").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/users/search").authenticated()
                 .requestMatchers(HttpMethod.PATCH, "/api/auth/me/searchable").authenticated()
+                .requestMatchers("/api/push/**").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/letters").authenticated()
                 .anyRequest().denyAll()

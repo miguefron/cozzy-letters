@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { apiFetch } from "@/lib/api";
+import PushNotificationToggle from "@/components/cozy/PushNotificationToggle";
 import Skeleton from "@/components/cozy/Skeleton";
 import CozyCard from "@/components/cozy/CozyCard";
 import CozyInput from "@/components/cozy/CozyInput";
@@ -288,6 +289,10 @@ export default function ProfilePage() {
               }`}
             />
           </button>
+        </div>
+
+        <div className="mt-4">
+          <PushNotificationToggle />
         </div>
 
         {/* Change Password (only for users with a password) */}

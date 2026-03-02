@@ -26,13 +26,16 @@ public class LetterService {
     private final LetterRepository letterRepository;
     private final LetterRecipientRepository letterRecipientRepository;
     private final SseService sseService;
+    private final WebPushService webPushService;
 
     public LetterService(UserRepository userRepository, LetterRepository letterRepository,
-                         LetterRecipientRepository letterRecipientRepository, SseService sseService) {
+                         LetterRecipientRepository letterRecipientRepository, SseService sseService,
+                         WebPushService webPushService) {
         this.userRepository = userRepository;
         this.letterRepository = letterRepository;
         this.letterRecipientRepository = letterRecipientRepository;
         this.sseService = sseService;
+        this.webPushService = webPushService;
     }
 
     @Transactional
@@ -93,6 +96,11 @@ public class LetterService {
             public void afterCommit() {
                 for (SseNotificationTask task : tasks) {
                     sseService.sendEvent(task.recipientUserId, "new_letter", task.notification);
+                    webPushService.sendPushToUser(
+                        task.recipientUserId,
+                        "New letter from " + task.notification.getSenderName(),
+                        task.notification.getTitle()
+                    );
                 }
             }
         });

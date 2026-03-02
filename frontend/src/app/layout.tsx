@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import AuthInitializer from "@/components/cozy/AuthInitializer";
@@ -23,6 +23,16 @@ const playfair = Playfair_Display({
 export const metadata: Metadata = {
   title: "CozyLetters",
   description: "Send warm letters to random souls around the world",
+  applicationName: "CozyLetters",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "CozyLetters",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#C4756B",
 };
 
 export default function RootLayout({
