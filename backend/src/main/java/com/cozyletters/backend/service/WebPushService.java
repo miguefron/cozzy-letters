@@ -89,10 +89,15 @@ public class WebPushService {
         pushSubscriptionRepository.deleteByUserIdAndEndpoint(user.getId(), endpoint);
     }
 
+    @Transactional(readOnly = true)
     public void sendPushToUser(Long userId, String title, String body) {
-        if (!enabled) return;
+        if (!enabled) {
+            log.debug("Push not enabled, skipping for user {}", userId);
+            return;
+        }
 
         List<PushSubscription> subscriptions = pushSubscriptionRepository.findByUserId(userId);
+        log.info("Sending push to user {} — found {} subscription(s)", userId, subscriptions.size());
         for (PushSubscription sub : subscriptions) {
             try {
                 String payload = objectMapper.writeValueAsString(
@@ -103,6 +108,7 @@ public class WebPushService {
                 );
                 var response = pushService.send(notification);
                 int statusCode = response.getStatusLine().getStatusCode();
+                log.info("Push sent to user {}, status: {}", userId, statusCode);
                 if (statusCode == 410 || statusCode == 404) {
                     log.info("Push subscription expired ({}), removing: {}", statusCode, sub.getEndpoint());
                     pushSubscriptionRepository.delete(sub);

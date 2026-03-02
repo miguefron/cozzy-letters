@@ -9,6 +9,8 @@ import com.cozyletters.backend.model.User;
 import com.cozyletters.backend.repository.LetterRecipientRepository;
 import com.cozyletters.backend.repository.LetterRepository;
 import com.cozyletters.backend.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,8 @@ import java.util.List;
 
 @Service
 public class LetterService {
+
+    private static final Logger log = LoggerFactory.getLogger(LetterService.class);
 
     private final UserRepository userRepository;
     private final LetterRepository letterRepository;
@@ -96,11 +100,15 @@ public class LetterService {
             public void afterCommit() {
                 for (SseNotificationTask task : tasks) {
                     sseService.sendEvent(task.recipientUserId, "new_letter", task.notification);
-                    webPushService.sendPushToUser(
-                        task.recipientUserId,
-                        "New letter from " + task.notification.getSenderName(),
-                        task.notification.getTitle()
-                    );
+                    try {
+                        webPushService.sendPushToUser(
+                            task.recipientUserId,
+                            "New letter from " + task.notification.getSenderName(),
+                            task.notification.getTitle()
+                        );
+                    } catch (Exception e) {
+                        log.error("Failed to send push notification to user {}", task.recipientUserId, e);
+                    }
                 }
             }
         });
