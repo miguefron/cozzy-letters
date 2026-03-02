@@ -36,7 +36,7 @@ public class LetterService {
     }
 
     @Transactional
-    public LetterResponse sendLetter(String senderEmail, String title, String content, Long recipientId) {
+    public LetterResponse sendLetter(String senderEmail, String title, String content, Long recipientId, String signature) {
         User sender = userRepository.findByEmail(senderEmail)
                 .orElseThrow(() -> new RuntimeException("Sender not found with email: " + senderEmail));
 
@@ -44,6 +44,7 @@ public class LetterService {
         letter.setSender(sender);
         letter.setTitle(title);
         letter.setContent(content);
+        letter.setSignature(signature);
 
         if (recipientId != null) {
             User recipient = userRepository.findById(recipientId)
@@ -102,7 +103,8 @@ public class LetterService {
                 saved.getContent(),
                 sender.getDisplayName(),
                 saved.getRecipients().size(),
-                saved.getCreatedAt()
+                saved.getCreatedAt(),
+                saved.getSignature()
         );
     }
 

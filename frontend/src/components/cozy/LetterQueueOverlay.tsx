@@ -3,19 +3,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import LetterContent from "./LetterContent";
+import CozyLetterCard from "./CozyLetterCard";
 import type { InboxLetter } from "@/stores/useInboxStore";
-
-function formatDate(dateStr: string) {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
 
 interface LetterQueueOverlayProps {
   letters: InboxLetter[];
@@ -92,30 +81,18 @@ export default function LetterQueueOverlay({
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -300, opacity: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="rounded-2xl bg-warm-white p-8 shadow-xl sm:p-10"
             >
-              {/* Header */}
-              <p className="text-sm font-medium text-foreground/60">
-                From {letter.senderName}
-              </p>
-              <h2 className="mt-2 font-serif text-2xl font-semibold text-terracotta">
-                {letter.title}
-              </h2>
-              <p className="mt-1 text-xs text-foreground/40">
-                {formatDate(letter.deliveredAt)}
-              </p>
-
-              <hr className="my-6 border-wood/10" />
-
-              {/* Body */}
-              <div className="max-h-[50vh] overflow-y-auto">
-                <LetterContent html={letter.content} />
-              </div>
-
-              <hr className="my-6 border-wood/10" />
+              <CozyLetterCard
+                senderName={letter.senderName}
+                title={letter.title}
+                content={letter.content}
+                signature={letter.signature}
+                deliveredAt={letter.deliveredAt}
+                maxContentHeight="50vh"
+              />
 
               {/* Footer */}
-              <div className="flex items-center justify-between">
+              <div className="mt-4 flex items-center justify-between rounded-2xl bg-[#FEFCF9] px-8 py-4 shadow-lg border border-wood/10">
                 <p className="text-sm text-foreground/40">
                   Letter {currentIndex + 1} of {letters.length}
                 </p>

@@ -7,6 +7,7 @@ export interface InboxLetter {
   title: string;
   content: string;
   senderName: string;
+  signature?: string;
   isRead: boolean;
   deliveredAt: string;
 }

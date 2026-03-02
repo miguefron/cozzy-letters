@@ -15,6 +15,7 @@ public class InboxLetterResponse {
     @JsonProperty("isRead")
     private boolean isRead;
     private LocalDateTime deliveredAt;
+    private String signature;
 
     public InboxLetterResponse() {}
 
@@ -26,6 +27,7 @@ public class InboxLetterResponse {
         this.senderName = lr.getLetter().getSender().getDisplayName();
         this.isRead = lr.isRead();
         this.deliveredAt = lr.getDeliveredAt();
+        this.signature = lr.getLetter().getSignature();
     }
 
     public Long getId() { return id; }
@@ -48,4 +50,7 @@ public class InboxLetterResponse {
 
     public LocalDateTime getDeliveredAt() { return deliveredAt; }
     public void setDeliveredAt(LocalDateTime deliveredAt) { this.deliveredAt = deliveredAt; }
+
+    public String getSignature() { return signature; }
+    public void setSignature(String signature) { this.signature = signature; }
 }

@@ -40,13 +40,13 @@ public class WelcomeLetterService {
         Letter letter = new Letter();
         letter.setSender(sender);
         letter.setTitle("Welcome to CozyLetters!");
+        letter.setSignature("The CozyLetters Team");
         letter.setContent(
                 "<h2>Hey " + newUser.getDisplayName() + ", welcome! 🎉</h2>"
                 + "<p>We're so glad you're here.</p>"
                 + "<p><strong>CozyLetters</strong> is a place where handwritten thoughts travel to unexpected places. "
                 + "Every letter you write reaches <em>5 random people</em> — strangers who might just need your words today.</p>"
                 + "<p>So grab a warm drink, settle in, and write your first letter whenever you're ready. ☕✉️</p>"
-                + "<p style=\"color:#9a6b4e;\">— The CozyLetters Team</p>"
         );
 
         LetterRecipient recipient = new LetterRecipient();

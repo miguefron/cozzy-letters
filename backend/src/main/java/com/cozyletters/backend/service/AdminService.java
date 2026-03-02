@@ -40,7 +40,8 @@ public class AdminService {
                     letter.getSender().getDisplayName(),
                     letter.getSender().getEmail(),
                     recipients,
-                    letter.getCreatedAt().toString()
+                    letter.getCreatedAt().toString(),
+                    letter.getSignature()
             );
         }).toList();
     }

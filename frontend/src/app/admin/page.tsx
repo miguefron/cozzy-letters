@@ -364,6 +364,9 @@ function LetterCard({
           className="border-t border-wood/10 px-5 pb-5"
         >
           <LetterContent html={letter.content} className="mt-4 text-sm" />
+          {letter.signature && (
+            <p className="mt-3 text-sm text-wood text-right">— {letter.signature}</p>
+          )}
           {/* Recipients section */}
           {letter.recipients && letter.recipients.length > 0 && (
             <div className="mt-4">

@@ -14,9 +14,10 @@ public class AdminLetterResponse {
     private final int recipientCount;
     private final List<RecipientInfo> recipients;
     private final String createdAt;
+    private final String signature;
 
     public AdminLetterResponse(Long id, String title, String content, String senderName,
-                               String senderEmail, List<RecipientInfo> recipients, String createdAt) {
+                               String senderEmail, List<RecipientInfo> recipients, String createdAt, String signature) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -25,6 +26,7 @@ public class AdminLetterResponse {
         this.recipients = recipients;
         this.recipientCount = recipients.size();
         this.createdAt = createdAt;
+        this.signature = signature;
     }
 
     public Long getId() { return id; }
@@ -35,6 +37,7 @@ public class AdminLetterResponse {
     public int getRecipientCount() { return recipientCount; }
     public List<RecipientInfo> getRecipients() { return recipients; }
     public String getCreatedAt() { return createdAt; }
+    public String getSignature() { return signature; }
 
     public static class RecipientInfo {
         private final String displayName;

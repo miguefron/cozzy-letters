@@ -23,6 +23,9 @@ public class Letter {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @Column(length = 255)
+    private String signature;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -47,6 +50,9 @@ public class Letter {
 
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
+
+    public String getSignature() { return signature; }
+    public void setSignature(String signature) { this.signature = signature; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

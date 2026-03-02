@@ -32,7 +32,7 @@ public class LetterController {
             @Valid @RequestBody SendLetterRequest request) {
 
         String email = authentication.getName();
-        LetterResponse response = letterService.sendLetter(email, request.getTitle(), request.getContent(), request.getRecipientId());
+        LetterResponse response = letterService.sendLetter(email, request.getTitle(), request.getContent(), request.getRecipientId(), request.getSignature());
         return ResponseEntity.ok(response);
     }
 

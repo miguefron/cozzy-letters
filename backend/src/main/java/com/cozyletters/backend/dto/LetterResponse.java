@@ -10,16 +10,18 @@ public class LetterResponse {
     private String senderName;
     private int recipientCount;
     private LocalDateTime createdAt;
+    private String signature;
 
     public LetterResponse() {}
 
-    public LetterResponse(Long id, String title, String content, String senderName, int recipientCount, LocalDateTime createdAt) {
+    public LetterResponse(Long id, String title, String content, String senderName, int recipientCount, LocalDateTime createdAt, String signature) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.senderName = senderName;
         this.recipientCount = recipientCount;
         this.createdAt = createdAt;
+        this.signature = signature;
     }
 
     public Long getId() { return id; }
@@ -39,4 +41,7 @@ public class LetterResponse {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public String getSignature() { return signature; }
+    public void setSignature(String signature) { this.signature = signature; }
 }

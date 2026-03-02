@@ -9,7 +9,7 @@ import { useInboxStore, type InboxLetter } from "@/stores/useInboxStore";
 import Skeleton from "@/components/cozy/Skeleton";
 import CozyCard from "@/components/cozy/CozyCard";
 import CozyButton from "@/components/cozy/CozyButton";
-import LetterContent from "@/components/cozy/LetterContent";
+import CozyLetterCard from "@/components/cozy/CozyLetterCard";
 import LetterQueueOverlay from "@/components/cozy/LetterQueueOverlay";
 
 function formatDate(dateStr: string) {
@@ -239,28 +239,15 @@ export default function InboxPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="rounded-2xl bg-warm-white p-8 shadow-lg sm:p-10"
                   >
-                    <button
-                      onClick={clearSelection}
-                      className="mb-6 text-sm text-wood transition-colors hover:text-terracotta md:hidden"
-                    >
-                      &larr; Back to inbox
-                    </button>
-
-                    <p className="text-sm font-medium text-foreground/60">
-                      From {selectedLetter.senderName}
-                    </p>
-                    <h2 className="mt-2 font-serif text-2xl font-semibold text-terracotta">
-                      {selectedLetter.title}
-                    </h2>
-                    <p className="mt-1 text-xs text-foreground/40">
-                      {formatDate(selectedLetter.deliveredAt)}
-                    </p>
-
-                    <hr className="my-6 border-wood/10" />
-
-                    <LetterContent html={selectedLetter.content} />
+                    <CozyLetterCard
+                      senderName={selectedLetter.senderName}
+                      title={selectedLetter.title}
+                      content={selectedLetter.content}
+                      signature={selectedLetter.signature}
+                      deliveredAt={selectedLetter.deliveredAt}
+                      onBack={clearSelection}
+                    />
                   </motion.div>
                 ) : (
                   <div className="hidden h-full items-center justify-center rounded-2xl bg-warm-white p-12 shadow-lg md:flex">

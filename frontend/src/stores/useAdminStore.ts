@@ -13,6 +13,7 @@ export interface AdminLetter {
   content: string;
   senderName: string;
   senderEmail: string;
+  signature?: string;
   recipientCount: number;
   recipients: AdminLetterRecipient[];
   createdAt: string;

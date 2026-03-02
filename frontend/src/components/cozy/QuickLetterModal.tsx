@@ -7,6 +7,7 @@ import Link from "next/link";
 import CozyInput from "./CozyInput";
 import CozyButton from "./CozyButton";
 import { apiFetch } from "@/lib/api";
+import { useAuthStore } from "@/stores/useAuthStore";
 
 interface QuickLetterModalProps {
   isOpen: boolean;
@@ -17,8 +18,10 @@ export default function QuickLetterModal({
   isOpen,
   onClose,
 }: QuickLetterModalProps) {
+  const { user } = useAuthStore();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [signature, setSignature] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [isSent, setIsSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +32,7 @@ export default function QuickLetterModal({
       const timeout = setTimeout(() => {
         setTitle("");
         setContent("");
+        setSignature("");
         setIsSending(false);
         setIsSent(false);
         setError(null);
@@ -46,6 +50,12 @@ export default function QuickLetterModal({
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [isOpen, onClose]);
+
+  useEffect(() => {
+    if (isOpen && !signature && user?.displayName) {
+      setSignature(user.displayName);
+    }
+  }, [isOpen, user?.displayName]);
 
   // Auto-close after success
   useEffect(() => {
@@ -68,7 +78,7 @@ export default function QuickLetterModal({
 
       const res = await apiFetch("/letters", {
         method: "POST",
-        body: JSON.stringify({ title, content: htmlContent }),
+        body: JSON.stringify({ title, content: htmlContent, ...(signature && { signature }) }),
       });
 
       if (!res.ok) throw new Error("Failed to send letter");
@@ -78,7 +88,7 @@ export default function QuickLetterModal({
     } finally {
       setIsSending(false);
     }
-  }, [title, content]);
+  }, [title, content, signature]);
 
   if (typeof window === "undefined") return null;
 
@@ -145,6 +155,15 @@ export default function QuickLetterModal({
                     onChange={(e) => setContent(e.target.value)}
                     rows={6}
                     className="resize-none leading-relaxed"
+                  />
+
+                  <CozyInput
+                    id="quick-signature"
+                    type="text"
+                    label="Sign as"
+                    placeholder="— A kind soul"
+                    value={signature}
+                    onChange={(e) => setSignature(e.target.value)}
                   />
 
                   {error && (

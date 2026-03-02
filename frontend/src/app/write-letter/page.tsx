@@ -21,9 +21,9 @@ interface UserSearchResult {
 }
 
 export default function WriteLetterPage() {
-  const { title, content, isSending, isSent, error, setTitle, setContent, sendLetter, reset, recipientId, recipientName, setRecipient, clearRecipient } =
+  const { title, content, signature, isSending, isSent, error, setTitle, setContent, setSignature, sendLetter, reset, recipientId, recipientName, setRecipient, clearRecipient } =
     useLetterStore();
-  const { token } = useAuthStore();
+  const { token, user } = useAuthStore();
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>("writing");
   const [editorKey, setEditorKey] = useState(0);
@@ -67,6 +67,12 @@ export default function WriteLetterPage() {
       if (searchTimeout.current) clearTimeout(searchTimeout.current);
     };
   }, [searchQuery]);
+
+  useEffect(() => {
+    if (!signature && user?.displayName) {
+      setSignature(user.displayName);
+    }
+  }, [user?.displayName, signature, setSignature]);
 
   useEffect(() => {
     if (!token) router.push("/login");
@@ -231,6 +237,15 @@ export default function WriteLetterPage() {
                     placeholder="Dear friend, I wanted to share something with you..."
                   />
                 </div>
+
+                <CozyInput
+                  id="letter-signature"
+                  type="text"
+                  label="Sign as"
+                  placeholder="— A kind soul"
+                  value={signature}
+                  onChange={(e) => setSignature(e.target.value)}
+                />
 
                 {error && (
                   <motion.p
