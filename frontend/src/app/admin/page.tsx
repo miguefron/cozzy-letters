@@ -104,7 +104,7 @@ export default function AdminPage() {
   });
 
   return (
-    <div className="min-h-screen bg-cream px-4 py-8 sm:py-12 sm:pt-24">
+    <div className="min-h-screen bg-cream px-4 py-8 sm:py-12">
       <div className="mx-auto w-full max-w-4xl">
         <motion.div
           initial={{ opacity: 0, y: 30 }}

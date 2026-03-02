@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { usePathname } from "next/navigation";
 import { AnimatePresence } from "framer-motion";
-import Navbar from "./Navbar";
+import UserFloatingMenu from "./UserFloatingMenu";
 import FAB from "./FAB";
 import QuickLetterModal from "./QuickLetterModal";
 import NotificationContainer from "./NotificationContainer";
@@ -45,8 +45,8 @@ export default function LayoutShell({
 
   return (
     <>
-      {!isLanding && <Navbar />}
-      <main className={isLanding ? "" : "pt-16"}>{children}</main>
+      <UserFloatingMenu />
+      <main>{children}</main>
 
       <AnimatePresence>
         {showFAB && <FAB onClick={() => setIsModalOpen(true)} />}
