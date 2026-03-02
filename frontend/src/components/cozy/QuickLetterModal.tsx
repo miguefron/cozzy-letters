@@ -25,6 +25,12 @@ export default function QuickLetterModal({
   const [isSending, setIsSending] = useState(false);
   const [isSent, setIsSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sendMode, setSendMode] = useState<"random" | "specific">("random");
+  const [recipientId, setRecipientId] = useState<number | null>(null);
+  const [recipientName, setRecipientName] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<{id: number; displayName: string}[]>([]);
+  const [searchLoading, setSearchLoading] = useState(false);
 
   // Reset state after modal close animation
   useEffect(() => {
@@ -36,6 +42,11 @@ export default function QuickLetterModal({
         setIsSending(false);
         setIsSent(false);
         setError(null);
+        setSendMode("random");
+        setRecipientId(null);
+        setRecipientName("");
+        setSearchQuery("");
+        setSearchResults([]);
       }, 300);
       return () => clearTimeout(timeout);
     }
@@ -69,6 +80,29 @@ export default function QuickLetterModal({
     return () => clearTimeout(timeout);
   }, [isSent, onClose]);
 
+  // Debounced user search
+  const searchTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (searchTimeout.current) clearTimeout(searchTimeout.current);
+    if (!searchQuery.trim() || searchQuery.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    setSearchLoading(true);
+    searchTimeout.current = setTimeout(async () => {
+      try {
+        const res = await apiFetch(`/users/search?q=${encodeURIComponent(searchQuery.trim())}`);
+        if (res.ok) {
+          const data = await res.json();
+          setSearchResults(data);
+        }
+      } catch { /* ignore */ } finally {
+        setSearchLoading(false);
+      }
+    }, 300);
+    return () => { if (searchTimeout.current) clearTimeout(searchTimeout.current); };
+  }, [searchQuery]);
+
   const handleSend = useCallback(async () => {
     if (!title.trim() || !content.trim()) return;
     setIsSending(true);
@@ -83,7 +117,12 @@ export default function QuickLetterModal({
 
       const res = await apiFetch("/letters", {
         method: "POST",
-        body: JSON.stringify({ title, content: htmlContent, ...(signature && { signature }) }),
+        body: JSON.stringify({
+          title,
+          content: htmlContent,
+          ...(signature && { signature }),
+          ...(recipientId && { recipientId }),
+        }),
       });
 
       if (!res.ok) throw new Error("Failed to send letter");
@@ -93,7 +132,7 @@ export default function QuickLetterModal({
     } finally {
       setIsSending(false);
     }
-  }, [title, content, signature]);
+  }, [title, content, signature, recipientId]);
 
   if (typeof window === "undefined") return null;
 
@@ -131,7 +170,9 @@ export default function QuickLetterModal({
                   Letter Sent!
                 </h3>
                 <p className="text-sm text-foreground/60">
-                  Your letter is on its way to a random soul.
+                  {recipientName
+                    ? `Your letter is on its way to ${recipientName}.`
+                    : "Your letter is on its way to a random soul."}
                 </p>
               </motion.div>
             ) : (
@@ -141,6 +182,89 @@ export default function QuickLetterModal({
                 </h3>
 
                 <div className="flex flex-col gap-4">
+                  {/* Recipient selector */}
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-foreground/70">
+                      To
+                    </label>
+                    {sendMode === "specific" && recipientId ? (
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#D4A574]/15 px-3 py-1.5 text-sm font-medium text-[#5C4033]">
+                          {recipientName}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setRecipientId(null);
+                              setRecipientName("");
+                              setSendMode("random");
+                              setSearchQuery("");
+                            }}
+                            className="ml-1 text-[#A68B6B]/60 transition-colors hover:text-[#A68B6B]"
+                            aria-label="Clear recipient"
+                          >
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                              <path d="M1 1L11 11M1 11L11 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                            </svg>
+                          </button>
+                        </span>
+                      </div>
+                    ) : sendMode === "specific" ? (
+                      <div className="relative">
+                        <input
+                          type="text"
+                          placeholder="Search by name..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="w-full rounded-xl border border-wood/20 bg-warm-white px-4 py-2.5 text-sm text-foreground placeholder:text-wood/40 focus:border-terracotta/40 focus:outline-none focus:ring-2 focus:ring-terracotta/10"
+                          autoFocus
+                        />
+                        {searchLoading && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-wood/20 border-t-terracotta" />
+                          </div>
+                        )}
+                        {searchResults.length > 0 && (
+                          <div className="absolute z-10 mt-1 w-full rounded-xl border border-wood/10 bg-warm-white py-1 shadow-lg">
+                            {searchResults.map((u) => (
+                              <button
+                                key={u.id}
+                                type="button"
+                                onClick={() => {
+                                  setRecipientId(u.id);
+                                  setRecipientName(u.displayName);
+                                  setSearchResults([]);
+                                  setSearchQuery("");
+                                }}
+                                className="w-full px-4 py-2 text-left text-sm text-foreground transition-colors hover:bg-cream/60"
+                              >
+                                {u.displayName}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        {searchQuery.trim().length >= 2 && !searchLoading && searchResults.length === 0 && (
+                          <div className="absolute z-10 mt-1 w-full rounded-xl border border-wood/10 bg-warm-white px-4 py-3 text-sm text-wood/60 shadow-lg">
+                            No users found
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setSendMode("specific")}
+                        className="flex items-center gap-2 rounded-xl border border-dashed border-wood/20 px-4 py-2.5 text-sm text-wood/50 transition-colors hover:border-terracotta/30 hover:text-wood/70"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-50">
+                          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                          <circle cx="9" cy="7" r="4" />
+                          <line x1="19" y1="8" x2="19" y2="14" />
+                          <line x1="16" y1="11" x2="22" y2="11" />
+                        </svg>
+                        Random souls — tap to choose someone
+                      </button>
+                    )}
+                  </div>
+
                   <CozyInput
                     id="quick-title"
                     type="text"

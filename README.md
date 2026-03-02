@@ -34,23 +34,26 @@ cozzy-letters/
 │       │   ├── QuickLetterModal.tsx  # Quick letter popup modal
 │       │   ├── LayoutShell.tsx       # Layout with navbar + FAB
 │       │   ├── Navbar.tsx            # Responsive navbar with avatar dropdown
-│       │   └── Skeleton.tsx          # Loading skeleton component
+│       │   ├── Skeleton.tsx          # Loading skeleton component
+│       │   └── PushNotificationToggle.tsx # Push notification toggle
 │       ├── stores/
 │       │   ├── useAuthStore.ts       # Auth state (login, register, JWT)
 │       │   ├── useLetterStore.ts     # Letter composing & sending
 │       │   ├── useInboxStore.ts      # Inbox state & mark as read
-│       │   └── useAdminStore.ts      # Admin panel state
+│       │   ├── useAdminStore.ts      # Admin panel state
+│       │   └── usePushStore.ts      # Push notification state
 │       └── lib/
-│           └── api.ts                # Authenticated fetch wrapper
+│           ├── api.ts                # Authenticated fetch wrapper
+│           └── pushNotifications.ts  # Web Push API utilities
 ├── backend/           # Spring Boot API
 │   └── src/main/java/com/cozyletters/backend/
 │       ├── config/          # Security & CORS configuration
-│       ├── controller/      # REST endpoints (Auth, Letters, Users)
+│       ├── controller/      # REST endpoints (Auth, Letters, Users, PushController)
 │       ├── dto/             # Request/Response objects
-│       ├── model/           # JPA entities (User, Letter, LetterRecipient)
-│       ├── repository/      # Data access layer
+│       ├── model/           # JPA entities (User, Letter, LetterRecipient, PushSubscription)
+│       ├── repository/      # Data access layer (incl. PushSubscriptionRepository)
 │       ├── security/        # JWT service & authentication filter
-│       └── service/         # Business logic
+│       └── service/         # Business logic (incl. WebPushService)
 └── docker-compose.yml # PostgreSQL container
 ```
 
@@ -163,6 +166,8 @@ In the Google Cloud Console, add:
 | DELETE | `/api/admin/letters/:id` | Admin | Delete a letter                   |
 | GET    | `/api/admin/users`    | Admin    | List all users                     |
 | DELETE | `/api/admin/users/:id`| Admin    | Delete a user                      |
+| POST   | `/api/push/subscribe`  | Required | Subscribe to push notifications     |
+| DELETE | `/api/push/subscribe`  | Required | Unsubscribe from push notifications |
 
 ## Features
 
@@ -175,3 +180,66 @@ In the Google Cloud Console, add:
 - **Authentication** — email/password login and Google OAuth2
 - **JWT security** — stateless authentication between Next.js and Spring Boot
 - **Responsive** — mobile-first design with adaptive navbar and layouts
+- **PWA** — installable as native app on mobile and desktop with standalone display
+- **Push notifications** — real-time notifications for new letters, even with the app closed
+
+## PWA & Push Notifications
+
+### Installable App (PWA)
+
+CozyLetters is a Progressive Web App — users can install it from the browser and use it like a native app:
+
+- **Web App Manifest** (`frontend/src/app/manifest.ts`) — `display: "standalone"`, theme/background colors, icons (192x192 maskable + 512x512)
+- **Layout metadata** (`layout.tsx`) — viewport `themeColor`, `appleWebApp` for iOS Safari support
+- **Service Worker** (`frontend/public/sw.js`) — handles push events and notification clicks (opens `/inbox`). No offline caching — the app requires a connection
+
+### Push Notifications
+
+Users receive push notifications when they get a new letter, even with the app closed or in the background.
+
+#### Subscription flow
+
+1. User activates the toggle in **Profile > Privacy > Push notifications**
+2. Browser requests notification permission
+3. `pushManager.subscribe()` generates a unique endpoint + p256dh + auth keys
+4. Frontend POSTs these to `POST /api/push/subscribe`
+5. Backend stores them in the `push_subscriptions` table (one user can have multiple devices)
+
+#### Notification flow
+
+1. User A sends a letter → `LetterService.sendLetter()` saves it
+2. After the transaction commits (`afterCommit`):
+   - **SSE event** — in-app toast notification (if the recipient has the tab open)
+   - **Web Push** — `WebPushService.sendPushToUser()` for each recipient
+3. Backend encrypts the payload with the recipient's p256dh + auth keys
+4. Signs the request with the VAPID private key
+5. Sends to the push service (Google FCM / Mozilla autopush)
+6. The service worker on the recipient's device receives the push → shows a system notification
+7. Tapping the notification opens `/inbox`
+
+#### VAPID keys
+
+VAPID (Voluntary Application Server Identification) keys authenticate the server as a legitimate push sender:
+
+- **Public key** — used by the frontend (to subscribe) and push services (to verify sender identity)
+- **Private key** — used by the backend only, signs each push message
+- Generated once with `npx web-push generate-vapid-keys`, stored in `.env.production`
+
+#### Automatic cleanup
+
+When a user uninstalls the app or revokes permissions, the push service responds with **410 Gone**. `WebPushService` detects this and automatically removes the expired subscription from the database.
+
+### Configuration
+
+Add these to `.env.production`:
+
+```
+VAPID_PUBLIC_KEY=your-vapid-public-key
+VAPID_PRIVATE_KEY=your-vapid-private-key
+NEXT_PUBLIC_VAPID_PUBLIC_KEY=your-vapid-public-key
+```
+
+Generate keys with:
+```bash
+npx web-push generate-vapid-keys
+```
