@@ -98,6 +98,7 @@ public class LetterService {
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
             @Override
             public void afterCommit() {
+                log.info("afterCommit: sending notifications to {} recipient(s)", tasks.size());
                 for (SseNotificationTask task : tasks) {
                     sseService.sendEvent(task.recipientUserId, "new_letter", task.notification);
                     try {
