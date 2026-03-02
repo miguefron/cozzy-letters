@@ -3,19 +3,17 @@
 import { motion } from "framer-motion";
 import { fadeUp, scaleFade, staggerContainer, floatAnimation } from "./animations";
 
-/* Small SVG leaf used as a floating decorative element */
-const Leaf = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden>
-    <path d="M17 8C8 10 5.9 16.17 3.82 21.34l1.89.66.95-2.3c.48.17.98.3 1.34.3C19 20 22 3 22 3c-1 2-8 2.25-13 3.25S2 11.5 2 13.5s1.75 3.75 1.75 3.75C7 8 17 8 17 8z" />
-  </svg>
-);
+/* ─── Inline Envelope SVG (identical to HeroSection) ─── */
 
-/* Tiny heart SVG for floating accents */
-const Heart = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden>
-    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-  </svg>
-);
+function EnvelopeSVG({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="16" width="56" height="36" rx="4" fill="#D4A574" fillOpacity="0.25" stroke="#D4A574" strokeOpacity="0.35" strokeWidth="2" />
+      <path d="M4 18 L32 38 L60 18" stroke="#C4756B" strokeOpacity="0.3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d="M29 28 C29 26 32 24 32 27 C32 24 35 26 35 28 C35 31 32 33 32 33 C32 33 29 31 29 28Z" fill="#C4756B" fillOpacity="0.3" />
+    </svg>
+  );
+}
 
 const quoteLines = [
   "In a world of instant messages and fleeting notifications,",
@@ -35,25 +33,25 @@ export default function EmotionalSection() {
         `,
       }}
     >
-      {/* TODO: Replace gradients with <Image src="/emotional-desk.webp" fill /> for full-bleed background */}
-
-      {/* Floating decorative elements */}
-      <motion.div animate={{ ...floatAnimation }} className="absolute top-16 left-[12%]">
-        <Leaf className="w-6 h-6 text-moss/20 rotate-[-30deg]" />
+      {/* Floating envelopes */}
+      <motion.div animate={floatAnimation} transition={{ ...floatAnimation.transition, duration: 5.2 }} className="absolute pointer-events-none" style={{ top: "10%", left: "6%", rotate: -15 }}>
+        <EnvelopeSVG size={36} />
       </motion.div>
-      <motion.div animate={{ ...floatAnimation, transition: { ...floatAnimation.transition, delay: 1.2 } }} className="absolute top-28 right-[10%]">
-        <Heart className="w-5 h-5 text-terracotta/15" />
+      <motion.div animate={floatAnimation} transition={{ ...floatAnimation.transition, duration: 5.8, delay: 1.0 }} className="absolute pointer-events-none" style={{ top: "18%", left: "88%", rotate: 20 }}>
+        <EnvelopeSVG size={42} />
       </motion.div>
-      <motion.div animate={{ ...floatAnimation, transition: { ...floatAnimation.transition, delay: 2.4 } }} className="absolute bottom-24 left-[8%]">
-        <Heart className="w-4 h-4 text-terracotta/10 rotate-12" />
+      <motion.div animate={floatAnimation} transition={{ ...floatAnimation.transition, duration: 4.8, delay: 0.5 }} className="absolute pointer-events-none" style={{ top: "55%", left: "4%", rotate: 10 }}>
+        <EnvelopeSVG size={30} />
       </motion.div>
-      <motion.div animate={{ ...floatAnimation, transition: { ...floatAnimation.transition, delay: 0.8 } }} className="absolute bottom-32 right-[14%]">
-        <Leaf className="w-7 h-7 text-moss/15 rotate-[45deg]" />
+      <motion.div animate={floatAnimation} transition={{ ...floatAnimation.transition, duration: 6.0, delay: 1.6 }} className="absolute pointer-events-none" style={{ top: "65%", left: "90%", rotate: -18 }}>
+        <EnvelopeSVG size={38} />
       </motion.div>
-
-      {/* Corner botanical accents */}
-      <Leaf className="absolute top-8 left-8 w-10 h-10 text-moss/10 rotate-[-60deg]" />
-      <Leaf className="absolute bottom-8 right-8 w-10 h-10 text-moss/10 rotate-[120deg]" />
+      <motion.div animate={floatAnimation} transition={{ ...floatAnimation.transition, duration: 5.4, delay: 0.3 }} className="absolute pointer-events-none" style={{ top: "80%", left: "12%", rotate: 22 }}>
+        <EnvelopeSVG size={28} />
+      </motion.div>
+      <motion.div animate={floatAnimation} transition={{ ...floatAnimation.transition, duration: 5.0, delay: 1.8 }} className="absolute pointer-events-none" style={{ top: "75%", left: "85%", rotate: -8 }}>
+        <EnvelopeSVG size={34} />
+      </motion.div>
 
       {/* Content card */}
       <motion.div

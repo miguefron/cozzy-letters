@@ -1,7 +1,19 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { fadeUp, letterFlip, staggerContainer } from "./animations";
+import { fadeUp, letterFlip, staggerContainer, floatAnimation } from "./animations";
+
+/* ─── Inline Envelope SVG (identical to HeroSection) ─── */
+
+function EnvelopeSVG({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="4" y="16" width="56" height="36" rx="4" fill="#D4A574" fillOpacity="0.25" stroke="#D4A574" strokeOpacity="0.35" strokeWidth="2" />
+      <path d="M4 18 L32 38 L60 18" stroke="#C4756B" strokeOpacity="0.3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <path d="M29 28 C29 26 32 24 32 27 C32 24 35 26 35 28 C35 31 32 33 32 33 C32 33 29 31 29 28Z" fill="#C4756B" fillOpacity="0.3" />
+    </svg>
+  );
+}
 
 /* ─── Letter Data ─── */
 
@@ -110,7 +122,24 @@ function LetterCard({
 
 export default function ExampleLettersSection() {
   return (
-    <section className="snap-start min-h-screen flex flex-col items-center justify-center px-4 py-20 sm:py-24">
+    <section className="snap-start min-h-screen flex flex-col items-center justify-center px-4 py-20 sm:py-24 relative overflow-hidden">
+      {/* Floating envelopes */}
+      <motion.div animate={floatAnimation} transition={{ ...floatAnimation.transition, duration: 5.2, delay: 0.3 }} className="absolute pointer-events-none" style={{ top: "10%", left: "5%", rotate: -10 }}>
+        <EnvelopeSVG size={36} />
+      </motion.div>
+      <motion.div animate={floatAnimation} transition={{ ...floatAnimation.transition, duration: 5.8, delay: 1.5 }} className="absolute pointer-events-none" style={{ top: "12%", left: "88%", rotate: 15 }}>
+        <EnvelopeSVG size={42} />
+      </motion.div>
+      <motion.div animate={floatAnimation} transition={{ ...floatAnimation.transition, duration: 4.6, delay: 2.0 }} className="absolute pointer-events-none" style={{ top: "70%", left: "8%", rotate: 22 }}>
+        <EnvelopeSVG size={30} />
+      </motion.div>
+      <motion.div animate={floatAnimation} transition={{ ...floatAnimation.transition, duration: 5.4, delay: 0.8 }} className="absolute pointer-events-none" style={{ top: "65%", left: "90%", rotate: -14 }}>
+        <EnvelopeSVG size={38} />
+      </motion.div>
+      <motion.div animate={floatAnimation} transition={{ ...floatAnimation.transition, duration: 5.0, delay: 1.2 }} className="absolute pointer-events-none" style={{ top: "40%", left: "3%", rotate: 18 }}>
+        <EnvelopeSVG size={26} />
+      </motion.div>
+
       {/* Heading */}
       <motion.div
         className="text-center mb-14 sm:mb-18"
