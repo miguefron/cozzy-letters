@@ -32,6 +32,7 @@ interface CozyLetterCardProps {
   deliveredAt: string;
   maxContentHeight?: string;
   onBack?: () => void;
+  onExpand?: () => void;
 }
 
 export default function CozyLetterCard({
@@ -42,6 +43,7 @@ export default function CozyLetterCard({
   deliveredAt,
   maxContentHeight,
   onBack,
+  onExpand,
 }: CozyLetterCardProps) {
   const formattedDate = new Date(deliveredAt).toLocaleDateString("en-US", {
     month: "short",
@@ -53,12 +55,37 @@ export default function CozyLetterCard({
 
   return (
     <div className="relative rounded-2xl bg-[#FEFCF9] p-8 shadow-lg sm:p-10 border border-wood/10">
-      {/* Wax seal */}
-      <div
-        className="absolute top-4 right-4 animate-pulse"
-        style={{ animationDuration: "3s" }}
-      >
-        <WaxSeal />
+      {/* Top-right: expand button + wax seal */}
+      <div className="absolute top-4 right-4 flex items-center gap-2">
+        {onExpand && (
+          <button
+            onClick={onExpand}
+            className="text-foreground/30 transition-colors hover:text-terracotta"
+            aria-label="Expand letter"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="14 2 18 2 18 6" />
+              <polyline points="6 18 2 18 2 14" />
+              <line x1="18" y1="2" x2="12" y2="8" />
+              <line x1="2" y1="18" x2="8" y2="12" />
+            </svg>
+          </button>
+        )}
+        <div
+          className="animate-pulse"
+          style={{ animationDuration: "3s" }}
+        >
+          <WaxSeal />
+        </div>
       </div>
 
       {/* Mobile back button */}

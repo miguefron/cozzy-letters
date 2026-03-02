@@ -11,6 +11,7 @@ import CozyCard from "@/components/cozy/CozyCard";
 import CozyButton from "@/components/cozy/CozyButton";
 import CozyLetterCard from "@/components/cozy/CozyLetterCard";
 import LetterQueueOverlay from "@/components/cozy/LetterQueueOverlay";
+import LetterExpandModal from "@/components/cozy/LetterExpandModal";
 
 function formatDate(dateStr: string) {
   const date = new Date(dateStr);
@@ -38,6 +39,7 @@ export default function InboxPage() {
   } = useInboxStore();
 
   const [showQueue, setShowQueue] = useState(false);
+  const [expandedLetter, setExpandedLetter] = useState<InboxLetter | null>(null);
   const queueSnapshotRef = useRef<InboxLetter[]>([]);
 
   const unreadLetters = useMemo(
@@ -186,6 +188,10 @@ export default function InboxPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: i * 0.05 }}
                       onClick={() => handleSelect(letter)}
+                      onDoubleClick={() => {
+                        handleSelect(letter);
+                        setExpandedLetter(letter);
+                      }}
                       className={`w-full rounded-xl bg-warm-white p-4 text-left shadow-sm transition-all hover:shadow-md ${
                         selectedLetter?.id === letter.id
                           ? "ring-2 ring-terracotta/40"
@@ -247,6 +253,7 @@ export default function InboxPage() {
                       signature={selectedLetter.signature}
                       deliveredAt={selectedLetter.deliveredAt}
                       onBack={clearSelection}
+                      onExpand={() => setExpandedLetter(selectedLetter)}
                     />
                   </motion.div>
                 ) : (
@@ -267,6 +274,13 @@ export default function InboxPage() {
           letters={queueSnapshotRef.current}
           onClose={() => setShowQueue(false)}
           onMarkAsRead={markAsRead}
+        />
+      )}
+
+      {expandedLetter && (
+        <LetterExpandModal
+          letter={expandedLetter}
+          onClose={() => setExpandedLetter(null)}
         />
       )}
     </div>
