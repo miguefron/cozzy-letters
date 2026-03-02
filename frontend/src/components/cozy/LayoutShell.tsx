@@ -41,7 +41,7 @@ export default function LayoutShell({
 
   useSse({ enabled: mounted && !!token, onEvent: handleSseEvent });
 
-  const showFAB = mounted && !!token && !isLanding && !isWriteLetter;
+  const showFAB = mounted && !!token && !isWriteLetter;
 
   return (
     <>
