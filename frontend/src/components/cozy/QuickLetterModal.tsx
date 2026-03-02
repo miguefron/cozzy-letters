@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -51,11 +51,16 @@ export default function QuickLetterModal({
     return () => window.removeEventListener("keydown", handleKey);
   }, [isOpen, onClose]);
 
+  const signatureInitialized = useRef(false);
   useEffect(() => {
-    if (isOpen && !signature && user?.displayName) {
+    if (isOpen && !signatureInitialized.current && !signature && user?.displayName) {
       setSignature(user.displayName);
+      signatureInitialized.current = true;
     }
-  }, [isOpen, user?.displayName]);
+    if (!isOpen) {
+      signatureInitialized.current = false;
+    }
+  }, [isOpen, user?.displayName, signature]);
 
   // Auto-close after success
   useEffect(() => {

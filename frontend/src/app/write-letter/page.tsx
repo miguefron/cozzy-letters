@@ -68,9 +68,11 @@ export default function WriteLetterPage() {
     };
   }, [searchQuery]);
 
+  const signatureInitialized = useRef(false);
   useEffect(() => {
-    if (!signature && user?.displayName) {
+    if (!signatureInitialized.current && !signature && user?.displayName) {
       setSignature(user.displayName);
+      signatureInitialized.current = true;
     }
   }, [user?.displayName, signature, setSignature]);
 
