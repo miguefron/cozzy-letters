@@ -15,9 +15,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.security.Security;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class WebPushService {
@@ -108,9 +112,20 @@ public class WebPushService {
                 );
                 var response = pushService.send(notification);
                 int statusCode = response.getStatusLine().getStatusCode();
-                log.info("Push sent to user {}, status: {}", userId, statusCode);
-                if (statusCode == 410 || statusCode == 404) {
-                    log.info("Push subscription expired ({}), removing: {}", statusCode, sub.getEndpoint());
+                if (statusCode >= 200 && statusCode < 300) {
+                    log.info("Push sent to user {}, status: {}", userId, statusCode);
+                } else {
+                    String responseBody = "";
+                    if (response.getEntity() != null) {
+                        try (var reader = new BufferedReader(new InputStreamReader(
+                                response.getEntity().getContent(), StandardCharsets.UTF_8))) {
+                            responseBody = reader.lines().collect(Collectors.joining("\n"));
+                        }
+                    }
+                    log.warn("Push to user {} failed, status: {}, body: {}", userId, statusCode, responseBody);
+                }
+                if (statusCode == 410 || statusCode == 404 || statusCode == 403) {
+                    log.info("Push subscription invalid ({}), removing: {}", statusCode, sub.getEndpoint());
                     pushSubscriptionRepository.delete(sub);
                 }
             } catch (Exception e) {
